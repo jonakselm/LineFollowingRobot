@@ -1,5 +1,5 @@
 // Libaries
-#include <QTRSensors.h>
+#include <QTRSensors.h>     // For sensorn som blir levert
 
 // Declerations
 const int PWMA = 13;
@@ -9,11 +9,11 @@ const int Motor1_A02 = 11;
 const int Motor2_B01 = 10;
 const int Motor2_B02 = 9;
 const int onOffSwitch = 7;
-// const int VM_Motor_Voltage = VIN
+// const int VM_Motor_Voltage = VIN     // Ikke i bruk akkurat no.
 // A01 og B01 blir brukt for framover bevegelse / A02 og B02 er for backover.
 
 
-// motion for switch for å lett kontrollere retning og setter default state til forward.
+// motion for switch for å lett kontrollere retning og setter default state til stop.
 enum motion { EMPTY, FORWARD, LEFT, RIGHT, BACKWARD, STOP, SWITCHOFF };
 
 // Setter opp pins og default motor verdier.
@@ -37,10 +37,10 @@ void setup()
   digitalWrite(Motor2_B01, LOW);
   digitalWrite(Motor2_B02, LOW);
 
-// Åpner port og setter data transfer rate til 9600
+  // Åpner port og setter data transfer rate til 9600
   Serial.begin(9600);
 
-  // User input tekst
+  // User input tekst   // midlertidig for å teste motorer.
   Serial.println("select direction of movement");
   Serial.println("1. forward");
   Serial.println("2. left");
@@ -142,28 +142,27 @@ void MotorControl (motion arg)
   // Bytter motor funksjon / Kanskje legge til speed control input også?
   switch (arg) 
     {
-    case FORWARD:         // Forward
+    case FORWARD:      // Forward
       Forward();
       break;
     case LEFT:         // Left
       Left();
       break;
-    case RIGHT:         // Right
+    case RIGHT:        // Right
       Right();
       break;
-    case BACKWARD:         // Backward
+    case BACKWARD:     // Backward
       Backward();
       break;
     case STOP:         // Stop
       Stop();
       break;
-    case SWITCHOFF:
+    case SWITCHOFF:    // For på/av switch
       SwitchOff();
       break;
-    default:
+    default:           // Default stop
       Stop();
-      break;
-    
+      break; 
     }
 }
 
