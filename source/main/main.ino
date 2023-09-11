@@ -8,9 +8,16 @@ const int Motor1_A01 = 12;
 const int Motor1_A02 = 11;
 const int Motor2_B01 = 10;
 const int Motor2_B02 = 9;
-const int onOffSwitch = 7;
+//const int onOffSwitch = 7;
 // const int VM_Motor_Voltage = VIN     // Ikke i bruk akkurat no.
 // A01 og B01 blir brukt for framover bevegelse / A02 og B02 er for backover.
+const int QTRSensorRight = 7;
+const int QTRSensorLeft = 6;
+const int QTREmitterPin = 2;
+
+QTRSensors qtr;
+const uint8_t SensorCount = 2;
+uint16_t sensorValues[SensorCount];
 
 
 // motion for switch for å lett kontrollere retning og setter default state til stop.
@@ -19,6 +26,11 @@ enum motion { EMPTY, FORWARD, LEFT, RIGHT, BACKWARD, STOP, SWITCHOFF };
 // Setter opp pins og default motor verdier.
 void setup() 
 {
+  // Setup for Sensors
+  qtr.setTypeRC();
+  qtr.setSensorPins((const uint8_t[]){ 6, 7 }, SensorCount);
+  qtr.setEmitterPin(QTREmitterPin);
+
   // Default motor fart
   digitalWrite(PWMA, HIGH);
   digitalWrite(PWMB, HIGH);
@@ -55,8 +67,18 @@ int input, switchState;
 // Main loop
 void loop() 
 {
-  // On / Off switch for motorer
-  switchState = digitalRead(onOffSwitch);
+  // read raw sensor values
+  qtr.read(sensorValues);
+
+  // printer sensor values som en verdi mellom 0 til 2500 for 0 er maksimum reflesksjon aka hvit.
+  for (uint8_t i = 0; i < SensorCount; i++)
+  {
+    Serial.print(sensorValues[i]);
+    Serial.print('\t');
+  }
+  Serial.println();
+
+  delay(500);
 
   while (switchState > 0)
   {  
@@ -65,14 +87,22 @@ void loop()
     if(Serial.available() != EMPTY)
     {
       MotorControl(input);
-      delay(400);
+      //delay(400);
       input = 0;
     }
-    //Serial.println("Passed IF");
+  // looper for å printe sensor data
+    for (uint8_t i = 0; i < SensorCount; i++)
+    {
+      Serial.print(sensorValues[i]);
+      Serial.print('\t');
+    }
+    Serial.println();
+
+    delay(500);
   }
 
   MotorControl(SWITCHOFF);
-  Serial.println("Switch OFF");
+  //Serial.println("Switch OFF");
   delay(400);
 }
 
@@ -105,15 +135,15 @@ void Left()
   Serial.println("Going left...");
   analogWrite(Motor1_A01, 255);
   analogWrite(Motor1_A02, 0);
-  analogWrite(Motor2_B01, 100);
-  analogWrite(Motor2_B02, 0);
+  analogWrite(Motor2_B01, 0);
+  analogWrite(Motor2_B02, 255);
 }
 
 void Right()
 {
   Serial.println("Going right...");
-  analogWrite(Motor1_A01, 100);
-  analogWrite(Motor1_A02, 0);
+  analogWrite(Motor1_A01, 0);
+  analogWrite(Motor1_A02, 255);
   analogWrite(Motor2_B01, 255);
   analogWrite(Motor2_B02, 0);
 }
