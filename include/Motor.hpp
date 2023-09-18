@@ -6,7 +6,7 @@
 ///////////////////////
 
 // Motion for switch for � lett kontrollere retning og setter default state til stop.
-enum Motion { EMPTY, FORWARD, LEFT, RIGHT, BACKWARD, STOP, SWITCHOFF };
+enum class Motion { Empty, Forward, Left, Right, Backward, Stop, Switchoff };
 
 // Framover funksjon
 void Forward(const int MA01, const int MA02, const int MB01, const int MB02)
@@ -69,22 +69,22 @@ void MotorControl (Motion arg, const int MA01, const int MA02, const int MB01, c
     // Bytter motor funksjon / Kanskje legge til speed control input ogs�?
     switch (arg)
     {
-        case FORWARD:      // Forward
+        case Motion::Forward:      // Forward
             Forward(MA01, MA02, MB01, MB02);
             break;
-        case LEFT:         // Left
+        case Motion::Left:         // Left
             Left(MA01, MA02, MB01, MB02);
             break;
-        case RIGHT:        // Right
+        case Motion::Right:        // Right
             Right(MA01, MA02, MB01, MB02);
             break;
-        case BACKWARD:     // Backward
+        case Motion::Backward:     // Backward
             Backward(MA01, MA02, MB01, MB02);
             break;
-        case STOP:         // Stop
+        case Motion::Stop:         // Stop
             Stop(MA01, MA02, MB01, MB02);
             break;
-        case SWITCHOFF:    // For p�/av switch
+        case Motion::Switchoff:    // For p�/av switch
             SwitchOff(MA01, MA02, MB01, MB02);
             break;
         default:           // Default stop
