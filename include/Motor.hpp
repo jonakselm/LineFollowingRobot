@@ -1,7 +1,3 @@
-//
-// Created by jonaksel on 9/18/23.
-//
-
 #ifndef LINEFOLLOWINGROBOT_MOTOR_HPP
 #define LINEFOLLOWINGROBOT_MOTOR_HPP
 
