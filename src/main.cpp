@@ -3,25 +3,23 @@
 #include <Arduino.h>
 #include "SimpleMotor.hpp"
 
-// Declerations
-const int PWMA = 13;
+// Pins
+const int QTREmitterPin = 2;
+// Sensor pin names reflect the number on the sensor chip
+enum Sensor { s17 = 3, s15, s13, s11, s9 };
 const int PWMB = 8;
-const int Motor1_A01 = 12;
-const int Motor1_A02 = 11;
-const int Motor2_B01 = 10;
 const int Motor2_B02 = 9;
+const int Motor2_B01 = 10;
+const int Motor1_A02 = 11;
+const int Motor1_A01 = 12;
+const int PWMA = 13;
 //const int onOffSwitch = 7;
 // const int VM_Motor_Voltage = VIN     // Ikke i bruk akkurat no.
 // A01 og B01 blir brukt for framover bevegelse / A02 og B02 er for backover.
-const int QTRSensorRight = 7;
-const int QTRSensorLeft = 6;
-const int QTREmitterPin = 2;
 
-const int sensorMax = 400;
-const int sensorMin = 200;
 
 QTRSensors qtr;
-const uint8_t sensorCount = 2;
+const uint8_t sensorCount = 5;
 uint16_t sensorValues[sensorCount];
 
 SimpleMotor motor;
@@ -31,7 +29,7 @@ void setup()
 {
     // Setup for Sensors
     qtr.setTypeRC();
-    qtr.setSensorPins((const uint8_t[]) { 6, 7 }, sensorCount);
+    qtr.setSensorPins((const uint8_t[]) { s9, s11, s13, s15, s17 }, sensorCount);
     qtr.setEmitterPin(QTREmitterPin);
 
     // Default motor fart
@@ -55,47 +53,52 @@ void setup()
     // �pner port og setter data transfer rate til 9600
     Serial.begin(9600);
 
-    motor.setMotorPins(Motor2_B01, Motor2_B02, Motor1_A01, Motor1_A02);;
-    motor.setSpeed(100);
+    motor.setMotorPins(Motor2_B01, Motor2_B02, Motor1_A01, Motor1_A02);
+    motor.setSpeed(135);
 }
-
-// Bruker input for � endre motor funksjon / midlertidig for testing.
-int input, switchState;
 
 // Low values == whiteness, High values == blackness
-/*
-Motion sensorToMotion(const int sensorRight, const int sensorLeft)
+SimpleMotor::Motion sensorToMotion(int s9, int s11, int s13, int s15, int s17)
 {
     // TODO: Sensor logic
-    const int threshold = 100;
-    if (sensorLeft > sensorMin + threshold && sensorRight > sensorMin + threshold)
-        return Motion::Forward;
-    else if (sensorLeft > sensorMin + threshold && sensorRight < sensorMin + threshold)
-        return Motion::Left;
-    else if (sensorLeft < sensorMin + threshold && sensorRight > sensorMin + threshold)
-        return Motion::Right;
+    const int sensorMin = 260;
+    const int threshold = sensorMin + 60;
+    bool is17Black = max(s17 - threshold, 0);
+    bool is15Black = max(s15 - threshold, 0);
+    bool is13Black = max(s13 - threshold, 0);
+    bool is11Black = max(s11 - threshold, 0);
+    bool is9Black = max(s9 - threshold, 0);
 
-    return Motion::Empty;
-}
-*/
-SimpleMotor::Motion sensorToMotion(int sensorRight, int sensorLeft)
-{
-    // TODO: Sensor logic
-    const int threshold = sensorMin + 50;
-    sensorLeft = max(sensorLeft - threshold, 0);
-    sensorRight = max(sensorRight - threshold, 0);
-    /*Serial.print("Sensor Left: ");
-    Serial.print(bool(sensorLeft));
-    Serial.print(" ");
-    Serial.print("Sensor Right: ");
-    Serial.print(bool(sensorRight));
-    Serial.print("\n");*/
-    if (sensorLeft && sensorRight)
+    int sensorsLeft = is17Black + is15Black;
+    int sensorsMid = is13Black;
+    int sensorsRight = is11Black + is9Black;
+
+    /*Serial.print(is17Black);
+    Serial.print(' ');
+    Serial.print(is15Black);
+    Serial.print(' ');
+    Serial.print(is13Black);
+    Serial.print(' ');
+    Serial.print(is11Black);
+    Serial.print(' ');
+    Serial.print(is9Black);
+    Serial.print(" \n");*/
+
+    if (sensorsMid)
+    {
         return SimpleMotor::Motion::Forward;
-    else if (sensorLeft && !sensorRight)
+    }
+    else if (motor.getMotion() == SimpleMotor::Motion::Left ||
+        sensorsLeft > sensorsRight)
+    {
         return SimpleMotor::Motion::Left;
-    else if (!sensorLeft && sensorRight)
+    }
+    else if (motor.getMotion() == SimpleMotor::Motion::Right ||
+        sensorsRight > sensorsLeft)
+    {
         return SimpleMotor::Motion::Right;
+    }
+
 
     return SimpleMotor::Motion::Stop;
 }
@@ -118,13 +121,14 @@ void loop()
     //input = Serial.parseInt();
     //Serial.println(input);
     // The rightmost values are the lowest
-    SimpleMotor::Motion motion = sensorToMotion(sensorValues[0], sensorValues[1]);
+    SimpleMotor::Motion motion = sensorToMotion(sensorValues[0], sensorValues[1], sensorValues[2], sensorValues[3], sensorValues[4]);
+    motor.setMotion(motion);
+    motor.drive();
     /*for (uint8_t i = 0; i < sensorCount; i++)
     {
         Serial.print(sensorValues[i]);
         Serial.print('\t');
     }*/
-    motor.MotorControl(motion);
     //delay(400);
     //input = 0;
 

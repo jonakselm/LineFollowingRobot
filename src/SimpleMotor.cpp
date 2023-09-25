@@ -7,17 +7,13 @@ SimpleMotor::SimpleMotor(int leftForward, int leftBackwards, int rightForward, i
     m_rightForward(rightForward),
     m_rightBackwards(rightBackwards)
 {
-    Serial.println(m_leftForward);
-    Serial.println(m_leftBackwards);
-    Serial.println(m_rightForward);
-    Serial.println(m_rightBackwards);
 }
 
 // Framover funksjon
 void SimpleMotor::Forward()
 {
     Serial.println("Going forward...");
-    analogWrite(m_leftForward, m_speed);
+    analogWrite(m_leftForward, m_speed+quickFix);
     analogWrite(m_leftBackwards, 0);
     analogWrite(m_rightForward, m_speed);
     analogWrite(m_rightBackwards, 0);
@@ -33,22 +29,24 @@ void SimpleMotor::Backward()
     analogWrite(m_rightBackwards, m_speed);
 }
 
-void SimpleMotor::Right()
-{
-    Serial.println("Going left...");
-    analogWrite(m_leftForward, m_speed);
-    analogWrite(m_leftBackwards, 0);
-    analogWrite(m_rightForward, 0);
-    analogWrite(m_rightBackwards, m_speed);
-}
-
 void SimpleMotor::Left()
 {
-    Serial.println("Going right...");
+    Serial.println("Going left...");
     analogWrite(m_leftForward, 0);
-    analogWrite(m_leftBackwards, m_speed);
+    analogWrite(m_leftBackwards, 0);
     analogWrite(m_rightForward, m_speed);
     analogWrite(m_rightBackwards, 0);
+    m_motion = Motion::Left;
+}
+
+void SimpleMotor::Right()
+{
+    Serial.println("Going right...");
+    analogWrite(m_leftForward, m_speed+quickFix);
+    analogWrite(m_leftBackwards, 0);
+    analogWrite(m_rightForward, 0);
+    analogWrite(m_rightBackwards, 0);
+    m_motion = Motion::Right;
 }
 
 // Stop funksjon
@@ -61,10 +59,32 @@ void SimpleMotor::Stop()
     digitalWrite(m_rightBackwards, 0);
 }
 
-void SimpleMotor::MotorControl(Motion arg)
+void SimpleMotor::setSpeed(uint8_t speed)
+{
+    m_speed = speed;
+}
+
+void SimpleMotor::setMotorPins(int leftForward, int leftBackwards, int rightForward, int rightBackwards)
+{
+    m_leftForward = leftForward;
+    m_leftBackwards = leftBackwards;
+    m_rightForward = rightForward;
+    m_rightBackwards = rightBackwards;
+    Serial.println(m_leftForward);
+    Serial.println(m_leftBackwards);
+    Serial.println(m_rightForward);
+    Serial.println(m_rightBackwards);
+}
+
+void SimpleMotor::setMotion(SimpleMotor::Motion motion)
+{
+    m_motion = motion;
+}
+
+void SimpleMotor::drive()
 {
     // Bytter motor funksjon / Kanskje legge til speed control input ogs�?
-    switch (arg)
+    switch (m_motion)
     {
         case Motion::Forward:      // Forward
             Forward();
@@ -87,19 +107,7 @@ void SimpleMotor::MotorControl(Motion arg)
     }
 }
 
-void SimpleMotor::setSpeed(uint8_t speed)
+SimpleMotor::Motion SimpleMotor::getMotion() const
 {
-    m_speed = speed;
-}
-
-void SimpleMotor::setMotorPins(int leftForward, int leftBackwards, int rightForward, int rightBackwards)
-{
-    m_leftForward = leftForward;
-    m_leftBackwards = leftBackwards;
-    m_rightForward = rightForward;
-    m_rightBackwards = rightBackwards;
-    Serial.println(m_leftForward);
-    Serial.println(m_leftBackwards);
-    Serial.println(m_rightForward);
-    Serial.println(m_rightBackwards);
+    return m_motion;
 }
