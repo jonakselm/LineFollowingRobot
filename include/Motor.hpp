@@ -6,91 +6,109 @@
 ///////////////////////
 
 // Motion for switch for � lett kontrollere retning og setter default state til stop.
-enum class Motion { Empty, Forward, Left, Right, Backward, Stop, Switchoff };
+class Motor
+{
+public:
+    enum class Motion { Empty, Forward, Left, Right, Backward, Stop, Switchoff };
+public:
+    Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards);
+    void Forward();
+    void Backward();
+    void Left();
+    void Right();
+    void Stop();
+    void setSpeed(uint8_t speed);
+    void MotorControl(Motion motion);
+
+private:
+    const int m_leftForward, m_leftBackwards;
+    const int m_rightForward, m_rightBackwards;
+    uint8_t m_speed;
+}
+
+Motor::Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards)
+    : m_leftForward(leftForward), m_leftBackwards(leftBackwards),
+    m_rightForward(rightForward), m_rightBackwards(rightBackwards)
+{
+}
 
 // Framover funksjon
-void Forward(const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::Forward()
 {
     Serial.println("Going forward...");
-    analogWrite(MA01, 255);
-    analogWrite(MA02, 0);
-    analogWrite(MB01, 255);
-    analogWrite(MB02, 0);
+    analogWrite(m_leftForward, m_speed);
+    analogWrite(m_leftBackwards, 0);
+    analogWrite(m_rightForward, m_speed);
+    analogWrite(m_rightBackwards, 0);
 }
 
 // Backover funksjon
-void Backward(const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::Backward()
 {
     Serial.println("Going backward...");
-    analogWrite(MA01, 0);
-    analogWrite(MA02, 255);
-    analogWrite(MB01, 0);
-    analogWrite(MB02, 255);
+    analogWrite(m_leftForward, 0);
+    analogWrite(m_leftBackwards, m_speed);
+    analogWrite(m_rightForward, 0);
+    analogWrite(m_rightBackwards, m_speed);
 }
 
-void Left(const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::Right()
 {
     Serial.println("Going left...");
-    analogWrite(MA01, 255);
-    analogWrite(MA02, 0);
-    analogWrite(MB01, 0);
-    analogWrite(MB02, 255);
+    analogWrite(m_leftForward, m_speed);
+    analogWrite(m_leftBackwards, 0);
+    analogWrite(m_rightForward, 0);
+    analogWrite(m_rightBackwards, m_speed);
 }
 
-void Right(const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::Left()
 {
     Serial.println("Going right...");
-    analogWrite(MA01, 0);
-    analogWrite(MA02, 255);
-    analogWrite(MB01, 255);
-    analogWrite(MB02, 0);
+    analogWrite(m_leftForward, 0);
+    analogWrite(m_leftBackwards, m_speed);
+    analogWrite(m_rightForward, m_speed);
+    analogWrite(m_rightBackwards, 0);
 }
 
 // Stop funksjon
-void Stop(const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::Stop()
 {
     Serial.println("Stopping...");
-    digitalWrite(MA01, 0);
-    digitalWrite(MA02, 0);
-    digitalWrite(MB01, 0);
-    digitalWrite(MB02, 0);
+    digitalWrite(m_leftForward, 0);
+    digitalWrite(m_leftBackwards, 0);
+    digitalWrite(m_rightForward, 0);
+    digitalWrite(m_rightBackwards, 0);
 }
 
-void SwitchOff(const int MA01, const int MA02, const int MB01, const int MB02)
-{
-    digitalWrite(MA01, 0);
-    digitalWrite(MA02, 0);
-    digitalWrite(MB01, 0);
-    digitalWrite(MB02, 0);
-}
-
-void MotorControl (Motion arg, const int MA01, const int MA02, const int MB01, const int MB02)
+void Motor::MotorControl(Motion arg)
 {
     // Bytter motor funksjon / Kanskje legge til speed control input ogs�?
     switch (arg)
     {
-        case Motion::Forward:      // Forward
-            Forward(MA01, MA02, MB01, MB02);
-            break;
-        case Motion::Left:         // Left
-            Left(MA01, MA02, MB01, MB02);
-            break;
-        case Motion::Right:        // Right
-            Right(MA01, MA02, MB01, MB02);
-            break;
-        case Motion::Backward:     // Backward
-            Backward(MA01, MA02, MB01, MB02);
-            break;
-        case Motion::Stop:         // Stop
-            Stop(MA01, MA02, MB01, MB02);
-            break;
-        case Motion::Switchoff:    // For p�/av switch
-            SwitchOff(MA01, MA02, MB01, MB02);
-            break;
-        default:           // Default stop
-            Stop(MA01, MA02, MB01, MB02);
-            break;
+    case Motion::Forward:      // Forward
+        Forward();
+        break;
+    case Motion::Left:         // Left
+        Left();
+        break;
+    case Motion::Right:        // Right
+        Right();
+        break;
+    case Motion::Backward:     // Backward
+        Backward();
+        break;
+    case Motion::Stop:         // Stop
+        Stop();
+        break;
+    default:           // Default stop
+        Stop();
+        break;
     }
+}
+
+void Motor::setSpeed(uint8_t speed)
+{
+    m_speed = speed;
 }
 
 #endif //LINEFOLLOWINGROBOT_MOTOR_HPP

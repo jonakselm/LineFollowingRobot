@@ -24,12 +24,14 @@ QTRSensors qtr;
 const uint8_t sensorCount = 2;
 uint16_t sensorValues[sensorCount];
 
+Motor motor(Motor2_B01, Motor2_B02, Motor1_A01, Motor1_A02);
+
 // Setter opp pins og default motor verdier.
 void setup()
 {
     // Setup for Sensors
     qtr.setTypeRC();
-    qtr.setSensorPins((const uint8_t[]){ 6, 7 }, sensorCount);
+    qtr.setSensorPins((const uint8_t[]) { 6, 7 }, sensorCount);
     qtr.setEmitterPin(QTREmitterPin);
 
     // Default motor fart
@@ -53,19 +55,14 @@ void setup()
     // �pner port og setter data transfer rate til 9600
     Serial.begin(9600);
 
-    // User input tekst   // midlertidig for � teste motorer.
-    Serial.println("select direction of movement");
-    Serial.println("1. forward");
-    Serial.println("2. left");
-    Serial.println("3. right");
-    Serial.println("4. backward");
-    Serial.println("5. stop");
+    motor.setSpeed(20);
 }
 
 // Bruker input for � endre motor funksjon / midlertidig for testing.
 int input, switchState;
 
 // Low values == whiteness, High values == blackness
+/*
 Motion sensorToMotion(const int sensorRight, const int sensorLeft)
 {
     // TODO: Sensor logic
@@ -79,6 +76,29 @@ Motion sensorToMotion(const int sensorRight, const int sensorLeft)
 
     return Motion::Empty;
 }
+*/
+Motor::Motion sensorToMotion(int sensorRight, int sensorLeft)
+{
+    // TODO: Sensor logic
+    const int threshold = sensorMin + 50;
+    sensorLeft = max(sensorLeft - threshold, 0);
+    sensorRight = max(sensorRight - threshold, 0);
+    Serial.print("Sensor Left: ");
+    Serial.print(bool(sensorLeft));
+    Serial.print(" ");
+    Serial.print("Sensor Right: ");
+    Serial.print(bool(sensorRight));
+    Serial.print("\n");
+    if (sensorLeft && sensorRight)
+        return Motor::Motion::Forward;
+    else if (sensorLeft && !sensorRight)
+        return Motor::Motion::Left;
+    else if (!sensorLeft && sensorRight)
+        return Motor::Motion::Right;
+
+    return Motor::Motion::Stop;
+}
+
 
 // Main loop
 void loop()
@@ -97,27 +117,21 @@ void loop()
     //input = Serial.parseInt();
     //Serial.println(input);
     // The rightmost values are the lowest
-    Motion motion = sensorToMotion(sensorValues[0], sensorValues[1]);
+    Motor::Motion motion = sensorToMotion(sensorValues[0], sensorValues[1]);
     for (uint8_t i = 0; i < sensorCount; i++)
     {
         Serial.print(sensorValues[i]);
         Serial.print('\t');
     }
-    MotorControl(motion, Motor1_A01, Motor1_A02, Motor2_B01, Motor2_B02);
+    motor.MotorControl(motion);
     //delay(400);
     input = 0;
 
-    delay(500);
+    //delay(500);
 
-    delay(500);
+    //delay(500);
 
     //MotorControl(Motion::Switchoff, Motor1_A01, Motor1_A02, Motor2_B01, Motor2_B02);
     //Serial.println("Switch OFF");
-    delay(400);
 }
-
-
-// Tekk input i form av Forward, Left, Right, Backward, Stop og kj�rer motor funksjonene basert p� input.
-
-// Sensor funksjon blir plassert her
 
