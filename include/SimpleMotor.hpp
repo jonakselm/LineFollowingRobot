@@ -2,11 +2,7 @@
 #define LINEFOLLOWINGROBOT_SIMPLEMOTOR_HPP
 #include <Arduino.h>
 
-///////////////////////
-// Helper funksjoner //
-///////////////////////
 
-// Motion for switch for � lett kontrollere retning og setter default state til stop.
 class SimpleMotor
 {
 public:
@@ -15,25 +11,17 @@ public:
     SimpleMotor() = default;
     SimpleMotor(int leftForward, int leftBackwards, int rightForward, int rightBackward);
     void setMotorPins(int leftForward, int leftBackwards, int rightForward, int rightBackwards);
-    void setSpeed(uint8_t speed);
+    void setDefSpeed(int speed);
 
-    void setMotion(Motion motion);
-    Motion getMotion() const;
+    void updateMotion(int s17, int s15, int s13, int s11, int s9);
 
     void drive();
 
 private:
-    void Forward();
-    void Backward();
-    void Left();
-    void Right();
-    void Stop();
-
-private:
-    int m_leftForward, m_leftBackwards;
-    int m_rightForward, m_rightBackwards;
-    uint8_t m_speed, quickFix = 100;
-    Motion m_motion = Motion::Empty;
+    int m_leftForward, m_rightForward;
+    int m_leftBackwards, m_rightBackwards;
+    int m_lSpeed = 0, m_rSpeed = 0;
+    int m_defSpeed, quickFix = 100;
 };
 
 #endif //LINEFOLLOWINGROBOT_SIMPLEMOTOR_HPP
