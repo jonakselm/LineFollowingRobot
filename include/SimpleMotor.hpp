@@ -32,7 +32,7 @@ private:
 private:
     int m_leftForward, m_leftBackwards;
     int m_rightForward, m_rightBackwards;
-    uint8_t m_speed, quickFix = 100;
+    uint8_t m_speed;
     Motion m_motion = Motion::Empty;
 };
 

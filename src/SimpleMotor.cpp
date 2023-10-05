@@ -13,7 +13,7 @@ SimpleMotor::SimpleMotor(int leftForward, int leftBackwards, int rightForward, i
 void SimpleMotor::Forward()
 {
     Serial.println("Going forward...");
-    analogWrite(m_leftForward, m_speed+quickFix);
+    analogWrite(m_leftForward, m_speed);
     analogWrite(m_leftBackwards, 0);
     analogWrite(m_rightForward, m_speed);
     analogWrite(m_rightBackwards, 0);
@@ -42,7 +42,7 @@ void SimpleMotor::Left()
 void SimpleMotor::Right()
 {
     Serial.println("Going right...");
-    analogWrite(m_leftForward, m_speed+quickFix);
+    analogWrite(m_leftForward, m_speed);
     analogWrite(m_leftBackwards, 0);
     analogWrite(m_rightForward, 0);
     analogWrite(m_rightBackwards, 0);
