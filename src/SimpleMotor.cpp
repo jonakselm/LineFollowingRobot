@@ -9,9 +9,9 @@ SimpleMotor::SimpleMotor(int leftForward, int leftBackwards, int rightForward, i
 {
 }
 
-void SimpleMotor::setDefSpeed(int speed)
+void SimpleMotor::setBaseSpeed(int speed)
 {
-    m_defSpeed = speed;
+    m_baseSpeed = speed;
 }
 
 void SimpleMotor::setMotorPins(int leftForward, int leftBackwards, int rightForward, int rightBackwards)
@@ -67,8 +67,8 @@ void SimpleMotor::updateMotion(int s17, int s15, int s13, int s11, int s9)
     Serial.print('\n');*/
 
     // Right goes double the speed of left for some reason
-    m_lSpeed = min(int((sNRRight + sNRight + sNMid) * m_defSpeed), 255);
-    m_rSpeed = min(int((sNLLeft + sNLeft + sNMid) * m_defSpeed), 255);
+    m_lSpeed = min(int((sNRRight + sNRight + sNMid) * m_baseSpeed), 255);
+    m_rSpeed = min(int((sNLLeft + sNLeft + sNMid) * m_baseSpeed), 255);
 
     Serial.print(m_lSpeed);
     Serial.print(' ');

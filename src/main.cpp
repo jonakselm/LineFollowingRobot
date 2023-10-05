@@ -53,7 +53,7 @@ void setup()
     Serial.begin(9600);
 
     motor.setMotorPins(MotorLeft_B01, MotorLeft_B02, MotorRight_A01, MotorRight_A02);
-    motor.setDefSpeed(255);
+    motor.setBaseSpeed(255);
 }
 
 // Main loop
