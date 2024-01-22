@@ -5,15 +5,7 @@
 const int QTREmitterPin = 2;
 // Sensor pin names reflect the number on the sensor chip
 enum Sensor { s17 = A0, s15, s13, s11, s9 };
-const int PWMB = 6;
-const int MotorLeft_B02 = 9;
-const int MotorLeft_B01 = 10;
-const int MotorRight_A02 = 11;
-const int MotorRight_A01 = 3;
-const int PWMA = 5;
-//const int onOffSwitch = 7;
-// const int VM_Motor_Voltage = VIN     // Ikke i bruk akkurat no.
-// A01 og B01 blir brukt for framover bevegelse / A02 og B02 er for backover.
+
 
 QTRSensors qtr;
 const uint8_t sensorCount = 5;
