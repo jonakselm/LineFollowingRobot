@@ -1,7 +1,5 @@
-// Libaries
-#include <QTRSensors.h>     // For sensorn som blir levert
+#include <QTRSensors.h>
 #include <Arduino.h>
-#include "SimpleMotor.hpp"
 
 // Pins
 const int QTREmitterPin = 2;
@@ -21,8 +19,6 @@ QTRSensors qtr;
 const uint8_t sensorCount = 5;
 uint16_t sensorValues[sensorCount];
 
-SimpleMotor motor;
-
 // Setter opp pins og default motor verdier.
 void setup()
 {
@@ -31,29 +27,7 @@ void setup()
     qtr.setSensorPins((const uint8_t[]) { s17, s15, s13, s11, s9 }, sensorCount);
     qtr.setEmitterPin(QTREmitterPin);
 
-    // Default motor fart
-    digitalWrite(+PWMA, HIGH);
-    digitalWrite(PWMB, HIGH);
-
-    // Setter Pin modes
-    pinMode(PWMA, OUTPUT);
-    pinMode(MotorRight_A01, OUTPUT);
-    pinMode(MotorRight_A02, OUTPUT);
-    pinMode(MotorLeft_B01, OUTPUT);
-    pinMode(MotorLeft_B02, OUTPUT);
-    //pinMode(onOffSwitch, INPUT);
-
-    // Setter motorer til low for � unng� at dei starter p� program startup
-    digitalWrite(MotorRight_A01, LOW);
-    digitalWrite(MotorRight_A02, LOW);
-    digitalWrite(MotorLeft_B01, LOW);
-    digitalWrite(MotorLeft_B02, LOW);
-
-    // �pner port og setter data transfer rate til 9600
     Serial.begin(9600);
-
-    motor.setMotorPins(MotorLeft_B01, MotorLeft_B02, MotorRight_A01, MotorRight_A02);
-    motor.setBaseSpeed(255);
 }
 
 // Main loop
@@ -73,9 +47,6 @@ void loop()
     //input = Serial.parseInt();
     //Serial.println(input);
 
-    motor.updateMotion(sensorValues[0], sensorValues[1], sensorValues[2], sensorValues[3], sensorValues[4]);
-    motor.drive();
-
     /*for (uint8_t i = 0; i < sensorCount; i++)
     {
         Serial.print(sensorValues[i]);
@@ -87,8 +58,5 @@ void loop()
     //delay(500);
 
     //delay(500);
-
-    //MotorControl(Motion::Switchoff, MotorRight_A01, MotorRight_A02, MotorLeft_B01, MotorLeft_B02);
-    //Serial.println("Switch OFF");
 }
 
