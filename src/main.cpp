@@ -1,26 +1,14 @@
-#include <QTRSensors.h>
 #include <Arduino.h>
+#include "Sensor.hpp"
 
-// Pins
-const int QTREmitterPin = 2;
 // Sensor pin names reflect the number on the sensor chip
-enum Sensor { s17 = A0, s15, s13, s11, s9 };
-
-
-QTRSensors qtr;
-const uint8_t sensorCount = 5;
-uint16_t sensorValues[sensorCount];
+enum SensorPin { s9 = A0, s11, s13, s15, s17, Count };
+Sensor sensor((const uint8_t[]){ s9, s11, s13, s15, s17 }, SensorPin::Count);
 
 void setup()
 {
-    // Setup for Sensors
-    qtr.setTypeRC();
-    qtr.setSensorPins((const uint8_t[]) { s17, s15, s13, s11, s9 }, sensorCount);
-    qtr.setEmitterPin(QTREmitterPin);
-    for (int i = 0; i < 50; i++)
-        qtr.calibrate(QTRReadMode::On);
-
     Serial.begin(9600);
+    sensor.loadPins((const uint8_t[]){ s9, s11, s13, s15, s17 }, SensorPin::Count)
 }
 
 // Main loop
