@@ -2,7 +2,7 @@
 // Created by oscar on 22.01.2024.
 //
 
-#include "pid.hpp"
+#include "Pid.hpp"
 
 PIDController::PIDController(double kp, double ki, double kd, double setpoint) {
     this->kp = kp;
