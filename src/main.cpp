@@ -14,7 +14,7 @@ int main() {
     while (true) {
         double current_value = 1000;
 
-        // Assuming you have a time step (dt) calculation
+
         double dt = 1;
 
         // Compute PID output
