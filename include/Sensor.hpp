@@ -6,9 +6,8 @@
 class Sensor
 {
 public:
-    Sensor();
+    Sensor(uint8_t pins[], int amount);
     ~Sensor();
-    void loadPins(uint8_t pins[], int amount);
     void calibrate(int cycles);
     void loadCalibration();
     void read();

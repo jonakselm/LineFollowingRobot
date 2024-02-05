@@ -19,11 +19,6 @@ Sensor::~Sensor()
     }
 }
 
-void Sensor::loadPins(uint8_t *pins, int amount)
-{
-
-}
-
 void Sensor::calibrate(int cycles)
 {
     for (int i = 0; i < cycles; i++)
