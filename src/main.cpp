@@ -1,94 +1,38 @@
-// Libaries
-#include <QTRSensors.h>     // For sensorn som blir levert
-#include <Arduino.h>
-#include "SimpleMotor.hpp"
+#include "pid.hpp"
+#include "Arduino.h"
 
-// Pins
-const int QTREmitterPin = 2;
-// Sensor pin names reflect the number on the sensor chip
-enum Sensor { s17 = A0, s15, s13, s11, s9 };
-const int PWMB = 6;
-const int MotorLeft_B02 = 9;
-const int MotorLeft_B01 = 10;
-const int MotorRight_A02 = 11;
-const int MotorRight_A01 = 3;
-const int PWMA = 5;
-//const int onOffSwitch = 7;
-// const int VM_Motor_Voltage = VIN     // Ikke i bruk akkurat no.
-// A01 og B01 blir brukt for framover bevegelse / A02 og B02 er for backover.
+int main() {
+    // Assuming you have some setup code here
+    double kp = 1;
+    double ki = 0.1;
+    double kd = 0.01;
+    double setpoint = 2000;
+    PIDController pid(kp, ki, kd,  setpoint);
 
-QTRSensors qtr;
-const uint8_t sensorCount = 5;
-uint16_t sensorValues[sensorCount];
-
-SimpleMotor motor;
-
-// Setter opp pins og default motor verdier.
-void setup()
-{
-    // Setup for Sensors
-    qtr.setTypeRC();
-    qtr.setSensorPins((const uint8_t[]) { s17, s15, s13, s11, s9 }, sensorCount);
-    qtr.setEmitterPin(QTREmitterPin);
-
-    // Default motor fart
-    digitalWrite(+PWMA, HIGH);
-    digitalWrite(PWMB, HIGH);
-
-    // Setter Pin modes
-    pinMode(PWMA, OUTPUT);
-    pinMode(MotorRight_A01, OUTPUT);
-    pinMode(MotorRight_A02, OUTPUT);
-    pinMode(MotorLeft_B01, OUTPUT);
-    pinMode(MotorLeft_B02, OUTPUT);
-    //pinMode(onOffSwitch, INPUT);
-
-    // Setter motorer til low for � unng� at dei starter p� program startup
-    digitalWrite(MotorRight_A01, LOW);
-    digitalWrite(MotorRight_A02, LOW);
-    digitalWrite(MotorLeft_B01, LOW);
-    digitalWrite(MotorLeft_B02, LOW);
-
-    // �pner port og setter data transfer rate til 9600
+    // Assuming you have a loop where you read the current value and update the control
     Serial.begin(9600);
+    while (true) {
+        double current_value = 1000;
 
-    motor.setMotorPins(MotorLeft_B01, MotorLeft_B02, MotorRight_A01, MotorRight_A02);
-    motor.setBaseSpeed(255);
-}
+        // Assuming you have a time step (dt) calculation
+        double dt = 1;
 
-// Main loop
-void loop()
-{
-    // read raw sensor values
-    qtr.read(sensorValues);
+        // Compute PID output
+        double pid_output = pid.compute(current_value, dt);
+        Serial.println(pid_output);
 
-    // printer sensor values som en verdi mellom 0 til 2500 for 0 er maksimum reflesksjon aka hvit.
-    /*for (uint8_t i = 0; i < sensorCount; i++)
-    {
-        Serial.print(sensorValues[i]);
-        Serial.print('\t');
+        // Assuming you have code to apply the PID output to your system (e.g., a motor)
+        // ...
+
+        // Update setpoint if needed
+       // pid.setSetpoint(new_desired_setpoint);
+
+        // Other control logic as needed
+
+        // Delay or sleep to control the loop frequency
+        // ...
+
     }
-    Serial.println();*/
 
-    //input = Serial.parseInt();
-    //Serial.println(input);
-
-    motor.updateMotion(sensorValues[0], sensorValues[1], sensorValues[2], sensorValues[3], sensorValues[4]);
-    motor.drive();
-
-    /*for (uint8_t i = 0; i < sensorCount; i++)
-    {
-        Serial.print(sensorValues[i]);
-        Serial.print('\t');
-    }*/
-    //delay(400);
-    //input = 0;
-
-    //delay(500);
-
-    //delay(500);
-
-    //MotorControl(Motion::Switchoff, MotorRight_A01, MotorRight_A02, MotorLeft_B01, MotorLeft_B02);
-    //Serial.println("Switch OFF");
+    return 0;
 }
-
