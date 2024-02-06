@@ -1,7 +1,9 @@
 #include "Arduino.h"
 #include "Pid.hpp"
 #include "Sensor.hpp"
+#include "Motor.hpp"
 
+// Sensor setup
 // Sensor pin names reflect the number on the sensor chip
 enum SensorPin { s9 = A0, s11, s13, s15, s17 };
 uint8_t sensorPins[] = { s9, s11, s13, s15, s17 };
@@ -15,6 +17,14 @@ double setpoint = 2000;
 PIDController pid(kp, ki, kd,  setpoint);
 
 uint64_t elapsedTime = 0;
+
+// Motor setup
+// A is left motor, B is right motor
+constexpr int MA1 = 10,  MA2 = 11,
+        MB1 = 9, MB2 = 8,
+        PWMA = 5, PWMB = 6;
+
+Motor motor(MA2, MA1, MB1, MB2, PWMA, PWMB);
 
 void setup()
 {
@@ -36,15 +46,12 @@ void loop()
     elapsedTime = millis();
 
     // Compute PID output
-    double pid_output = pid.compute(pos, dt);
+    double pidOutput = pid.compute(pos, dt);
     Serial.print("PID: ");
-    Serial.println(pid_output);
+    Serial.println(pidOutput);
 
-    // Assuming you have code to apply the PID output to your system (e.g., a motor)
-    // ...
+    motor.updateOutput((long)pidOutput, -2000, 2000);
 
-    // Update setpoint if needed
-    // pid.setSetpoint(new_desired_setpoint);
     delay(500);
 }
 
