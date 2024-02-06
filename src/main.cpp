@@ -10,7 +10,7 @@ uint8_t sensorPins[] = { s9, s11, s13, s15, s17 };
 Sensor sensor(sensorPins, 5);
 
 // Pid setup
-double kp = 1;
+double kp = 0.75;
 double ki = 0.0;
 double kd = 0.01;
 double setpoint = 2000;
@@ -30,7 +30,7 @@ void setup()
 {
     // Sensor setup
     Serial.begin(9600);
-    sensor.calibrate(75);
+    motor.autoCalibrate(sensor, 300);
 }
 
 void loop()
@@ -39,7 +39,7 @@ void loop()
     Serial.print("Pos: ");
     Serial.println(pos);
     // 0 == høyre, 4000 == venstre
-    //Serial.println(pos);
+    Serial.println(pos);
 
 
     double dt = double(millis() - elapsedTime) / 1000;
@@ -51,7 +51,5 @@ void loop()
     Serial.println(pidOutput);
 
     motor.updateOutput((long)pidOutput, -2000, 2000);
-
-    delay(500);
 }
 
