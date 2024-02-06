@@ -4,14 +4,17 @@
 class Motor
 {
 public:
-    Motor(int AIN0, int AIN1, int BIN0, int BIN1);
-    void updateOutput(double pidOutput);
+    Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards,
+          int PWMLeft, int PWMRight);
 
+    void updateOutput(long pidOutput, long pidMin, long pidMax);
 
+    void stop() const;
 
 private:
-    int AIN0, AIN1, BIN0, BIN1;
-    double PWMA = 0, PWMB = 0;
+    int m_leftForward, m_leftBackwards, m_rightForward, m_rightBackwards,
+        m_PWMLeft, m_PWMRight;
+    static constexpr int DEFAULT_SPEED = 128;
 };
 
 #endif //LINEFOLLOWINGROBOT_MOTOR_HPP
