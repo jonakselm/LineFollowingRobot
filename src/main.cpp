@@ -10,9 +10,9 @@ uint8_t sensorPins[] = { s9, s11, s13, s15, s17 };
 Sensor sensor(sensorPins, 5);
 
 // Pid setup
-double kp = 0.75;
-double ki = 0.0;
-double kd = 0.01;
+double kp = 0.85;
+double ki = 0.02;
+double kd = 0.04;
 double setpoint = 2000;
 PIDController pid(kp, ki, kd,  setpoint);
 

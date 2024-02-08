@@ -16,7 +16,7 @@ public:
 private:
     int m_leftForward, m_leftBackwards, m_rightForward, m_rightBackwards,
         m_PWMLeft, m_PWMRight;
-    static constexpr int MAX_SPEED = 128;
+    static constexpr int MAX_SPEED = 210;
 };
 
 #endif //LINEFOLLOWINGROBOT_MOTOR_HPP

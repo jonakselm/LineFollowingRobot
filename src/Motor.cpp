@@ -37,7 +37,7 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
     // Negative == left, Positive == right
     int cyclesOffset = 0;
     constexpr int amountToEdge = 10;
-    for (int i = 0; i < amountToEdge; i++)
+    for (int i = 0; i < amountToEdge - 1; i++)
     {
         driveLeft();
         cyclesOffset -= 1;
