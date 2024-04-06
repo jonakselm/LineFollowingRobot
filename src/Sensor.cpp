@@ -12,11 +12,8 @@ Sensor::Sensor(uint8_t pins[], int amount)
 
 Sensor::~Sensor()
 {
-    if (m_sensorValues)
-    {
-        delete m_sensorValues;
-        m_sensorValues = nullptr;
-    }
+    delete[] m_sensorValues;
+    m_sensorValues = nullptr;
 }
 
 void Sensor::calibrate(int cycles)
