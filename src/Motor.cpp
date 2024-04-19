@@ -14,26 +14,9 @@ Motor::Motor(int leftForward, int leftBackwards, int rightForward, int rightBack
 
 void Motor::autoCalibrate(Sensor &sensor, int cycles)
 {
-    bool goingLeft = false;
-    auto driveLeft = [&]()
-    {
-        digitalWrite(m_leftForward, 1);
-        digitalWrite(m_leftBackwards, 0);
-        digitalWrite(m_rightForward, 0);
-        digitalWrite(m_rightBackwards, 1);
-        goingLeft = true;
-    };
-    auto driveRight = [&]()
-    {
-        digitalWrite(m_leftForward, 0);
-        digitalWrite(m_leftBackwards, 1);
-        digitalWrite(m_rightForward, 1);
-        digitalWrite(m_rightBackwards, 0);
-        goingLeft = false;
-    };
-
-    analogWrite(m_PWMLeft, 100);
-    analogWrite(m_PWMRight, 100);
+    bool goingLeft = true;
+    analogWrite(m_PWMLeft, 75);
+    analogWrite(m_PWMRight, 75);
     // Negative == left, Positive == right
     int cyclesOffset = 0;
     constexpr int amountToEdge = 10;
@@ -118,4 +101,44 @@ void Motor::stop() const
 {
     analogWrite(m_PWMLeft, 0);
     analogWrite(m_PWMRight, 0);
+}
+
+void Motor::manualRun(unsigned char speed)
+{
+    digitalWrite(m_leftForward, 1);
+    digitalWrite(m_leftBackwards, 0);
+    /*digitalWrite(m_rightForward, 1);
+    digitalWrite(m_rightBackwards, 0);*/
+    analogWrite(m_PWMLeft, speed);
+    //analogWrite(m_PWMRight, speed);
+}
+
+void Motor::powerTurn(bool left)
+{
+    if (left)
+    {
+        driveLeft();
+    }
+    else
+    {
+        driveRight();
+    }
+    digitalWrite(m_PWMLeft, 1);
+    digitalWrite(m_PWMRight, 1);
+}
+
+void Motor::driveLeft()
+{
+    digitalWrite(m_leftForward, 1);
+    digitalWrite(m_leftBackwards, 0);
+    digitalWrite(m_rightForward, 0);
+    digitalWrite(m_rightBackwards, 1);
+}
+
+void Motor::driveRight()
+{
+    digitalWrite(m_leftForward, 0);
+    digitalWrite(m_leftBackwards, 1);
+    digitalWrite(m_rightForward, 1);
+    digitalWrite(m_rightBackwards, 0);
 }

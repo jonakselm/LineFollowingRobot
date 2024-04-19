@@ -2,6 +2,7 @@
 #define LINEFOLLOWINGROBOT_SENSOR_HPP
 
 #include <QTRSensors.h>
+#include <vector>
 
 class Sensor
 {
@@ -21,6 +22,7 @@ public:
 
     void saveCalibration() const;
     void printValues() const;
+    std::vector<int> getSensorValues() const;
 
 private:
     QTRSensors m_sensor;

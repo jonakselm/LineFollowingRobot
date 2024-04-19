@@ -53,3 +53,13 @@ void Sensor::printValues() const
     }
     Serial.println();
 }
+
+std::vector<int> Sensor::getSensorValues() const
+{
+    std::vector<int> v;
+    for (int i = 0; i < m_numSensors; i++)
+    {
+        v.push_back(m_sensorValues[i]);
+    }
+    return v;
+}
