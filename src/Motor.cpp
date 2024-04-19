@@ -17,9 +17,9 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
 {
     analogWrite(m_PWMLeft, 50);
     analogWrite(m_PWMRight, 50);
-    int16_t toTurn = 35;
+    int16_t toTurn = 20;
     Serial.println("left");
-    //driveLeft();
+    driveLeft();
     for (int i = 0; i < cycles; i++)
     {
         m_encoders.update();
@@ -55,7 +55,6 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
         sensor.calibrate(1);
     }
     Serial.println("Calibration done");
-    stop();
 }
 
 void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
@@ -63,14 +62,25 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
     if (m_powerTurning)
     {
         m_relativeEncoderDiff += m_encoders.getRelativeEncoderDiff();
+        if (m_encoders.getRelativeEncoderDiff())
+        {
+            Serial.println(m_encoders.getTotalEncoderDiff());
+        }
         if (turnIsFinished())
         {
+            Serial.println("Done power turning");
             m_powerTurning = false;
             m_relativeEncoderDiff = 0;
         }
     }
     else
     {
+        /*digitalWrite(m_leftForward, 0);
+        digitalWrite(m_leftBackwards, 0);
+        digitalWrite(m_rightForward, 0);
+        digitalWrite(m_rightBackwards, 0);
+        digitalWrite(m_PWMLeft, 0);
+        digitalWrite(m_PWMRight, 0);*/
         pidOutput = min(pidOutput, pidMax);
         pidOutput = max(pidOutput, pidMin);
         digitalWrite(m_leftForward, 1);
@@ -121,6 +131,7 @@ void Motor::powerTurn(int16_t degs)
     analogWrite(m_PWMLeft, 255);
     analogWrite(m_PWMRight, 255);
     m_powerTurning = true;
+    Serial.println("Power turning");
 }
 
 void Motor::driveLeft()

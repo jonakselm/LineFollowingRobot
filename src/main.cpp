@@ -35,31 +35,17 @@ void setup()
 {
     // Sensor setup
     Serial.begin(9600);
-    //motor.powerTurn(90);
     motor.autoCalibrate(sensor, 300);
-    /*digitalWrite(MA2, 0);
-    digitalWrite(MA1, 1);
-    digitalWrite(MB2, 0);
-    digitalWrite(MB1, 1);
-
-    digitalWrite(PWMA, 1);
-    digitalWrite(PWMB, 1);*/
-    /*digitalWrite(MA1, 1);
-    digitalWrite(MA2, 0);
-    digitalWrite(MB1, 0);
-    digitalWrite(MB2, 1);*/
-    analogWrite(PWMA, 0);
-    analogWrite(PWMB, 0);
 }
 
 void loop()
 {
-    /*encoders.update();
+    encoders.update();
     if (encoders.getRelativeEncoderDiff())
     {
         Serial.println(encoders.getTotalEncoderDiff());
     }
-    /*uint16_t pos = sensor.readLine();
+    uint16_t pos = sensor.readLine();
     //Serial.print("Pos: ");
     //Serial.println(pos);
 
@@ -71,6 +57,31 @@ void loop()
     //Serial.print("PID: ");
     //Serial.println(pidOutput);
 
-    motor.updateOutput((long)pidOutput, -2000, 2000);*/
+    /*auto v = sensor.getSensorValues();
+    constexpr int mid = numSensorPins / 2;
+    constexpr int threshold = 1000 - 200;
+    int right = 0;
+    int left = 0;
+    for (int i = 0; i < numSensorPins; i++)
+    {
+        if (i < mid && v[i] > threshold)
+        {
+            right++;
+        }
+        else if (i > mid && v[i] > threshold)
+        {
+            left++;
+        }
+    }
+    constexpr int minimumBlack = 4;
+    if (right >= minimumBlack && left < minimumBlack)
+    {
+        motor.powerTurn(-75);
+    }
+    else if (left >= minimumBlack && right < minimumBlack)
+    {
+        motor.powerTurn(75);
+    }*/
+    motor.updateOutput((long)pidOutput, -2000, 2000);
 }
 

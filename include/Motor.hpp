@@ -25,7 +25,7 @@ private:
 
     int m_leftForward, m_leftBackwards, m_rightForward, m_rightBackwards,
         m_PWMLeft, m_PWMRight;
-    static constexpr int MAX_SPEED = 255 * 0.70;
+    static constexpr int MAX_SPEED = 255 * 0.60;
     Encoders &m_encoders;
     bool m_powerTurning = false;
     int16_t m_toTurn = 0;

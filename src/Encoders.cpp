@@ -1,6 +1,7 @@
 #include "Encoders.hpp"
 
 RotaryEncoder *encA = nullptr, *encB = nullptr;
+
 Encoders::Encoders(int pinA1, int pinA2, int pinB1, int pinB2)
     : m_encoderA(pinA1, pinA2), m_encoderB(pinB1, pinB2),
       m_encoderDiff(0), m_relativeEncoderDiff(0)
@@ -21,8 +22,6 @@ Encoders::~Encoders()
 
 void Encoders::update()
 {
-    m_encoderA.tick();
-    m_encoderB.tick();
     int16_t newEncoderDiff = m_encoderA.getPosition() - m_encoderB.getPosition();
     m_relativeEncoderDiff = newEncoderDiff - m_encoderDiff;
     if (m_encoderDiff != newEncoderDiff)
