@@ -2,7 +2,6 @@
 #include "Pid.hpp"
 #include "Sensor.hpp"
 #include "Motor.hpp"
-#include "RotaryEncoder.h"
 #include "Encoders.hpp"
 
 // Sensor setup
