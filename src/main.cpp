@@ -29,14 +29,14 @@ constexpr int MA1 = 3, MA2 = 4, MB1 = 6, MB2 = 7, PWMA = 2, PWMB = 5;
         MB1 = 6, MB2 = 7,
         PWMA = 2, PWMB = 5;*/
 
-Motor motor(MA1, MA2, MB1, MB2, PWMA, PWMB);
+Motor motor(MA1, MA2, MB1, MB2, PWMA, PWMB, encoders);
 
 void setup()
 {
     // Sensor setup
     Serial.begin(9600);
-    //motor.autoCalibrate(sensor, 300);
-    //motor.manualRun(50);
+    //motor.powerTurn(90);
+    motor.autoCalibrate(sensor, 300);
     /*digitalWrite(MA2, 0);
     digitalWrite(MA1, 1);
     digitalWrite(MB2, 0);
@@ -54,22 +54,22 @@ void setup()
 
 void loop()
 {
-    encoders.update();
+    /*encoders.update();
     if (encoders.getRelativeEncoderDiff())
     {
         Serial.println(encoders.getTotalEncoderDiff());
     }
     /*uint16_t pos = sensor.readLine();
-    Serial.print("Pos: ");
-    Serial.println(pos);
+    //Serial.print("Pos: ");
+    //Serial.println(pos);
 
     double dt = double(millis() - elapsedTime) / 1000;
     elapsedTime = millis();
 
     // Compute PID output
     double pidOutput = pid.compute(pos, dt);
-    Serial.print("PID: ");
-    Serial.println(pidOutput);
+    //Serial.print("PID: ");
+    //Serial.println(pidOutput);
 
     motor.updateOutput((long)pidOutput, -2000, 2000);*/
 }

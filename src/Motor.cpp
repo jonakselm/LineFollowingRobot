@@ -2,66 +2,54 @@
 #include <Arduino.h>
 
 Motor::Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards,
-             int PWMLeft, int PWMRight)
+             int PWMLeft, int PWMRight, Encoders &encoders)
     : m_leftForward(leftForward),
-    m_leftBackwards(leftBackwards),
-    m_rightForward(rightForward),
-    m_rightBackwards(rightBackwards),
-    m_PWMLeft(PWMLeft),
-    m_PWMRight(PWMRight)
+      m_leftBackwards(leftBackwards),
+      m_rightForward(rightForward),
+      m_rightBackwards(rightBackwards),
+      m_PWMLeft(PWMLeft),
+      m_PWMRight(PWMRight),
+      m_encoders(encoders)
 {
 }
 
 void Motor::autoCalibrate(Sensor &sensor, int cycles)
 {
-    bool goingLeft = true;
-    analogWrite(m_PWMLeft, 75);
-    analogWrite(m_PWMRight, 75);
-    // Negative == left, Positive == right
-    int cyclesOffset = 0;
-    constexpr int amountToEdge = 10;
-    for (int i = 0; i < amountToEdge - 1; i++)
+    analogWrite(m_PWMLeft, 50);
+    analogWrite(m_PWMRight, 50);
+    int16_t toTurn = 35;
+    Serial.println("left");
+    //driveLeft();
+    while (true)
     {
-        driveLeft();
-        cyclesOffset -= 1;
-    }
-    for (int i = amountToEdge; i < cycles; i++)
-    {
-        if (goingLeft = (i / amountToEdge % 2 == 0))
+        m_encoders.update();
+        if (m_encoders.getRelativeEncoderDiff())
+            Serial.println(m_encoders.getTotalEncoderDiff());
+        if (toTurn > 0 && m_encoders.getTotalEncoderDiff() >= toTurn)
         {
-            driveLeft();
-            cyclesOffset -= 1;
+            toTurn = -toTurn;
+            Serial.println("right");
+            //driveRight();
+        }
+        else if (toTurn < 0 && m_encoders.getTotalEncoderDiff() <= toTurn)
+        {
+            toTurn = -toTurn;
+            Serial.println("left");
+            //driveLeft();
+        }
+        sensor.calibrate(1);
+
+    }
+    while (m_encoders.getTotalEncoderDiff() != 0)
+    {
+        if (m_encoders.getTotalEncoderDiff() > 0)
+        {
+            driveRight();
         }
         else
         {
-            driveRight();
-            cyclesOffset += 1;
-        }
-        Serial.print("Going left: ");
-        Serial.print(goingLeft);
-        Serial.print(", Cycles: ");
-        Serial.println(i);
-        sensor.calibrate(1);
-    }
-    for (int i = 0; i < abs(cyclesOffset); i++)
-    {
-        // Positive needs correction left
-        if (cyclesOffset > 0)
-        {
             driveLeft();
-            cyclesOffset -= 1;
         }
-        // Positive needs correction right
-        else
-        {
-            driveRight();
-            cyclesOffset += 1;
-        }
-        Serial.print("Going left: ");
-        Serial.print(goingLeft);
-        Serial.print(", Cycles: ");
-        Serial.println(i);
-        sensor.calibrate(1);
     }
     digitalWrite(m_leftForward, 1);
     digitalWrite(m_leftBackwards, 0);
@@ -72,29 +60,41 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
 
 void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
 {
-    pidOutput = min(pidOutput, pidMax);
-    pidOutput = max(pidOutput, pidMin);
-    digitalWrite(m_leftForward, 1);
-    digitalWrite(m_leftBackwards, 0);
-    digitalWrite(m_rightForward, 1);
-    digitalWrite(m_rightBackwards, 0);
-
-    /*
-     * Left is negative, Right is positive
-     * 0 == 255
-     * Pid negative == Left < Right
-     * Pid positive == Right < Left
-     * */
-    int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
-    int speedLeft = MAX_SPEED;
-    int speedRight = MAX_SPEED;
-    int absOutput = abs(outputMapped);
-    if (outputMapped > 0)
-        speedLeft -= absOutput;
+    if (m_powerTurning)
+    {
+        m_relativeEncoderDiff += m_encoders.getRelativeEncoderDiff();
+        if (turnIsFinished())
+        {
+            m_powerTurning = false;
+            m_relativeEncoderDiff = 0;
+        }
+    }
     else
-        speedRight -= absOutput;
-    analogWrite(m_PWMLeft, speedLeft);
-    analogWrite(m_PWMRight, speedRight);
+    {
+        pidOutput = min(pidOutput, pidMax);
+        pidOutput = max(pidOutput, pidMin);
+        digitalWrite(m_leftForward, 1);
+        digitalWrite(m_leftBackwards, 0);
+        digitalWrite(m_rightForward, 1);
+        digitalWrite(m_rightBackwards, 0);
+
+        /*
+         * Left is negative, Right is positive
+         * 0 == 255
+         * Pid negative == Left < Right
+         * Pid positive == Right < Left
+         * */
+        int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
+        int speedLeft = MAX_SPEED;
+        int speedRight = MAX_SPEED;
+        int absOutput = abs(outputMapped);
+        if (outputMapped > 0)
+            speedLeft -= absOutput;
+        else
+            speedRight -= absOutput;
+        analogWrite(m_PWMLeft, speedLeft);
+        analogWrite(m_PWMRight, speedRight);
+    }
 }
 
 void Motor::stop() const
@@ -113,18 +113,14 @@ void Motor::manualRun(unsigned char speed)
     //analogWrite(m_PWMRight, speed);
 }
 
-void Motor::powerTurn(bool left)
+void Motor::powerTurn(int16_t degs)
 {
-    if (left)
-    {
-        driveLeft();
-    }
-    else
-    {
-        driveRight();
-    }
-    digitalWrite(m_PWMLeft, 1);
-    digitalWrite(m_PWMRight, 1);
+    turn(degs);
+    /*digitalWrite(m_PWMLeft, 1);
+    digitalWrite(m_PWMRight, 1);*/
+    analogWrite(m_PWMLeft, 255);
+    analogWrite(m_PWMRight, 255);
+    m_powerTurning = true;
 }
 
 void Motor::driveLeft()
@@ -141,4 +137,22 @@ void Motor::driveRight()
     digitalWrite(m_leftBackwards, 1);
     digitalWrite(m_rightForward, 1);
     digitalWrite(m_rightBackwards, 0);
+}
+
+void Motor::turn(int16_t degs)
+{
+    m_toTurn = degs;
+    if (degs > 0)
+    {
+        driveLeft();
+    }
+    else
+    {
+        driveRight();
+    }
+}
+
+bool Motor::turnIsFinished() const
+{
+    return abs(m_relativeEncoderDiff) >= abs(m_toTurn);
 }
