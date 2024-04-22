@@ -2,6 +2,7 @@
 #define LINEFOLLOWINGROBOT_ENCODERS_HPP
 
 #include <RotaryEncoder.h>
+#include <cmath>
 
 class Encoders
 {
@@ -11,15 +12,21 @@ public:
 
     void update();
 
-    int16_t getTotalEncoderDiff() const;
+    int32_t getTotalEncoderDiff() const;
 
-    int16_t getRelativeEncoderDiff() const;
+    int32_t getRelativeEncoderDiff() const;
+
+    int32_t getTotalEncoderDistance() const;
+    int32_t getRelativeEncoderDistance() const;
+
+    int32_t getOrientation() const;
 
 private:
     static void tickA();
     static void tickB();
     RotaryEncoder m_encoderA, m_encoderB;
-    int16_t m_encoderDiff, m_relativeEncoderDiff;
+    int32_t m_encoderDiff, m_relativeEncoderDiff;
+    int32_t m_lastA, m_lastB, m_relativeEncoderDistance;
 };
 
 #endif //LINEFOLLOWINGROBOT_ENCODERS_HPP

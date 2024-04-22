@@ -1,10 +1,11 @@
+#include <atomic>
 #include "Arduino.h"
 #include "Pid.hpp"
 #include "Sensor.hpp"
 #include "Motor.hpp"
 #include "Encoders.hpp"
-
-#define nitti
+#include "Mapper.hpp"
+#include "Position.hpp"
 
 // Sensor setup
 // Sensor pin names reflect the number on the pcb
@@ -22,8 +23,6 @@ double kd = 0.04;
 double setpoint = 4000;
 PIDController pid(kp, ki, kd,  setpoint);
 
-uint64_t elapsedTime = 0;
-
 // Motor setup
 // A is left motor, B is right motor
 constexpr int MA1 = 3, MA2 = 4, MB1 = 6, MB2 = 7, PWMA = 2, PWMB = 5;
@@ -33,59 +32,51 @@ constexpr int MA1 = 3, MA2 = 4, MB1 = 6, MB2 = 7, PWMA = 2, PWMB = 5;
 
 Motor motor(MA1, MA2, MB1, MB2, PWMA, PWMB, encoders);
 
+Mapper mapper;
+Position position;
+
+uint64_t elapsedTime = 0, timeSincePoll = 0;
+
 void setup()
 {
     // Sensor setup
-    Serial.begin(9600);
+    Serial.begin(115200);
     motor.autoCalibrate(sensor, 300);
+    //motor.manualRun(255);
 }
 
 void loop()
 {
+    elapsedTime = millis();
     encoders.update();
-    if (encoders.getRelativeEncoderDiff())
+    /*if (encoders.getRelativeEncoderDiff())
     {
         Serial.println(encoders.getTotalEncoderDiff());
+    }*/
+    if (elapsedTime > timeSincePoll + 100)
+    {
+        timeSincePoll = elapsedTime;
+        position.updatePosition(encoders.getRelativeEncoderDistance(), encoders.getTotalEncoderDiff());
     }
-    uint16_t pos = sensor.readLine();
-    //Serial.print("Pos: ");
-    //Serial.println(pos);
+    static Point lastPos;
+    if (position.getPosition().x > 20)
+    {
+        motor.stop();
+    }
+    /*if (lastPos != position.getPosition())
+    {
+        Serial.print(position.getPosition().x);
+        Serial.print(", ");
+        Serial.println(position.getPosition().y);
+        mapper.addPoint(position.getPosition());
+    }*/
+    /*uint16_t pos = sensor.readLine();
 
     double dt = double(millis() - elapsedTime) / 1000;
     elapsedTime = millis();
 
     // Compute PID output
     double pidOutput = pid.compute(pos, dt);
-    //Serial.print("PID: ");
-    //Serial.println(pidOutput);
-
-#ifdef nitti
-    auto v = sensor.getSensorValues();
-    constexpr int mid = numSensorPins / 2;
-    constexpr int threshold = 1000 - 200;
-    int right = 0;
-    int left = 0;
-    for (int i = 0; i < numSensorPins; i++)
-    {
-        if (i < mid && v[i] > threshold)
-        {
-            right++;
-        }
-        else if (i > mid && v[i] > threshold)
-        {
-            left++;
-        }
-    }
-    constexpr int minimumBlack = 4;
-    if (right >= minimumBlack && left < minimumBlack)
-    {
-        motor.powerTurn(-75);
-    }
-    else if (left >= minimumBlack && right < minimumBlack)
-    {
-        motor.powerTurn(75);
-    }
-#endif
-    motor.updateOutput((long)pidOutput, -2000, 2000);
+    motor.updateOutput((long)pidOutput, -2000, 2000);*/
 }
 

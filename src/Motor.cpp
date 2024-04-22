@@ -130,9 +130,7 @@ void Motor::powerTurn(int16_t degs)
 
 void Motor::manualRun(unsigned char speed)
 {
-    driveBackwards();
-    /*digitalWrite(m_rightForward, 1);
-    digitalWrite(m_rightBackwards, 0);*/
+    driveForward();
     analogWrite(m_PWMLeft, speed);
     analogWrite(m_PWMRight, speed);
 }
