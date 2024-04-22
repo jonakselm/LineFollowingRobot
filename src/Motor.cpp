@@ -85,15 +85,12 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
     }
     else
     {
-        /*digitalWrite(m_leftForward, 0);
-        digitalWrite(m_leftBackwards, 0);
-        digitalWrite(m_rightForward, 0);
-        digitalWrite(m_rightBackwards, 0);
-        digitalWrite(m_PWMLeft, 0);
-        digitalWrite(m_PWMRight, 0);*/
-        pidOutput = min(pidOutput, pidMax);
-        pidOutput = max(pidOutput, pidMin);
         driveForward();
+        analogWrite(m_PWMLeft, 50);
+        analogWrite(m_PWMRight, 50);
+        /*pidOutput = min(pidOutput, pidMax);
+        pidOutput = max(pidOutput, pidMin);
+        driveForward();*/
 
         /*
          * Left is negative, Right is positive
@@ -101,7 +98,7 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
          * Pid negative == Left < Right
          * Pid positive == Right < Left
          * */
-        int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
+        /*int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
         int speedLeft = MAX_SPEED;
         int speedRight = MAX_SPEED;
         int absOutput = abs(outputMapped);
@@ -110,16 +107,12 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         else
             speedRight -= absOutput;
         analogWrite(m_PWMLeft, speedLeft);
-        analogWrite(m_PWMRight, speedRight);
+        analogWrite(m_PWMRight, speedRight);*/
     }
 }
 
 void Motor::powerTurn(int16_t degs)
 {
-    analogWrite(m_PWMLeft, 50);
-    analogWrite(m_PWMLeft, 50);
-    driveBackwards();
-    delay(200);
     Serial.println("Power turning");
     m_powerTurning = true;
     m_toTurn = ~0;
