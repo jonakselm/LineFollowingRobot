@@ -27,9 +27,14 @@ void Encoders::update()
     int32_t posB = m_encoderB.getPosition();
     int32_t newEncoderDiff = posA - posB;
     m_relativeEncoderDiff = newEncoderDiff - m_encoderDiff;
+    int diffA = posA - m_lastA;
+    int diffB = posB - m_lastB;
+    m_lastA = posA;
+    m_lastB = posB;
+    m_relativeEncoderDistance = abs(diffA) > abs(diffB) ? diffB : diffA;
+    //Serial.println(m_relativeEncoderDistance);
     if (m_encoderDiff != newEncoderDiff)
     {
-        m_relativeEncoderDistance = 0;
         /*Serial.println(m_encoderDiff);
         Serial.println(newEncoderDiff);*/
         m_encoderDiff = newEncoderDiff;
@@ -39,23 +44,19 @@ void Encoders::update()
     // in their difference since last update
     else
     {
-        m_relativeEncoderDistance = posA - m_lastA;
-        if (m_encoderA.getPosition() != m_lastA)
-        //if (m_encoderA.getPosition() - m_lastA == m_encoderB.getPosition() - m_lastB)
+        /*Serial.println(diffA);
+        Serial.println(diffB);*/
+        //m_relativeEncoderDistance = min(diffA, diffB);
+        //m_relativeEncoderDistance = abs(diffA) > abs(diffB) ? diffB : diffA;
+
+        /*if (abs(diffA) > abs(diffB))
         {
-            /*Serial.print(m_lastA);
-            Serial.print(", ");
-            Serial.print(m_encoderA.getPosition());
-            Serial.print(" | ");
-            Serial.print(m_lastB);
-            Serial.print(", ");
-            Serial.println(m_encoderB.getPosition());*/
-
-            //Serial.println(m_relativeEncoderDistance);
-
-            m_lastA = posA;
-            m_lastB = posB;
+            m_relativeEncoderDistance = diffB;
         }
+        else
+        {
+            m_relativeEncoderDistance = diffA;
+        }*/
     }
 }
 

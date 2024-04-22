@@ -7,7 +7,6 @@ Position::Position()
 
 void Position::updatePosition(int relativeDistance, int totalEncoderDiff)
 {
-    Serial.println(relativeDistance);
     double orientation = totalEncoderDiff % 360;
     if (orientation < 0)
     {

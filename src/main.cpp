@@ -52,26 +52,27 @@ void loop()
         Serial.println(encoders.getTotalEncoderDiff());
     }*/
     static int newPos = 0;
-    newPos += encoders.getRelativeEncoderDistance();
-    if (millis() - timeSincePoll > 1000)
+    //newPos += encoders.getRelativeEncoderDistance();
+    position.updatePosition(encoders.getRelativeEncoderDistance(), encoders.getTotalEncoderDiff());
+    /*if (millis() - timeSincePoll > 1000)
     {
         timeSincePoll = millis();
         Serial.println(newPos);
-        position.updatePosition(newPos, encoders.getTotalEncoderDiff());
         Serial.print(position.getPosition().x);
         Serial.print(", ");
         Serial.println(position.getPosition().y);
         newPos = 0;
-    }
+    }*/
     static Point lastPos;
 
-    /*if (lastPos != position.getPosition())
+    if (lastPos != position.getPosition())
     {
+        lastPos = position.getPosition();
         Serial.print(position.getPosition().x);
         Serial.print(", ");
         Serial.println(position.getPosition().y);
         mapper.addPoint(position.getPosition());
-    }*/
+    }
     uint16_t pos = sensor.readLine();
 
     double dt = double(millis() - elapsedTime) / 1000;
@@ -86,7 +87,7 @@ void loop()
     }*/
     // Compute PID output
     double pidOutput = pid.compute(pos, dt);
-    if (position.getPosition().x < 1);
+    if (position.getPosition().x < 1 && position.getPosition().x > -1);
         //motor.updateOutput((long)pidOutput, -2000, 2000);
 }
 
