@@ -4,6 +4,8 @@
 #include "Motor.hpp"
 #include "Encoders.hpp"
 
+#define nitti
+
 // Sensor setup
 // Sensor pin names reflect the number on the pcb
 enum SensorPin { s1 = 15, s2, s3, s4, s5, s6, s7, s8, s9 };
@@ -57,7 +59,8 @@ void loop()
     //Serial.print("PID: ");
     //Serial.println(pidOutput);
 
-    /*auto v = sensor.getSensorValues();
+#ifdef nitti
+    auto v = sensor.getSensorValues();
     constexpr int mid = numSensorPins / 2;
     constexpr int threshold = 1000 - 200;
     int right = 0;
@@ -81,7 +84,8 @@ void loop()
     else if (left >= minimumBlack && right < minimumBlack)
     {
         motor.powerTurn(75);
-    }*/
+    }
+#endif
     motor.updateOutput((long)pidOutput, -2000, 2000);
 }
 

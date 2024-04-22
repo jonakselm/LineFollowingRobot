@@ -66,6 +66,16 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         {
             Serial.println(m_encoders.getTotalEncoderDiff());
         }
+        if (m_relativeEncoderDiff > m_toTurn / 2)
+        {
+            digitalWrite(m_PWMLeft, MAX_SPEED / 2);
+            digitalWrite(m_PWMRight, MAX_SPEED / 2);
+        }
+        if (m_relativeEncoderDiff > m_toTurn / 4)
+        {
+            digitalWrite(m_PWMLeft, MAX_SPEED / 4);
+            digitalWrite(m_PWMRight, MAX_SPEED / 4);
+        }
         if (turnIsFinished())
         {
             Serial.println("Done power turning");
@@ -83,10 +93,7 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         digitalWrite(m_PWMRight, 0);*/
         pidOutput = min(pidOutput, pidMax);
         pidOutput = max(pidOutput, pidMin);
-        digitalWrite(m_leftForward, 1);
-        digitalWrite(m_leftBackwards, 0);
-        digitalWrite(m_rightForward, 1);
-        digitalWrite(m_rightBackwards, 0);
+        driveForward();
 
         /*
          * Left is negative, Right is positive
@@ -107,31 +114,49 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
     }
 }
 
+void Motor::powerTurn(int16_t degs)
+{
+    analogWrite(m_PWMLeft, 50);
+    analogWrite(m_PWMLeft, 50);
+    driveBackwards();
+    delay(200);
+    Serial.println("Power turning");
+    m_powerTurning = true;
+    m_toTurn = ~0;
+    turn(degs);
+    analogWrite(m_PWMLeft, MAX_SPEED);
+    analogWrite(m_PWMRight, MAX_SPEED);
+}
+
+void Motor::manualRun(unsigned char speed)
+{
+    driveBackwards();
+    /*digitalWrite(m_rightForward, 1);
+    digitalWrite(m_rightBackwards, 0);*/
+    analogWrite(m_PWMLeft, speed);
+    analogWrite(m_PWMRight, speed);
+}
+
 void Motor::stop() const
 {
     analogWrite(m_PWMLeft, 0);
     analogWrite(m_PWMRight, 0);
 }
 
-void Motor::manualRun(unsigned char speed)
+void Motor::driveForward()
 {
     digitalWrite(m_leftForward, 1);
     digitalWrite(m_leftBackwards, 0);
-    /*digitalWrite(m_rightForward, 1);
-    digitalWrite(m_rightBackwards, 0);*/
-    analogWrite(m_PWMLeft, speed);
-    //analogWrite(m_PWMRight, speed);
+    digitalWrite(m_rightForward, 1);
+    digitalWrite(m_rightBackwards, 0);
 }
 
-void Motor::powerTurn(int16_t degs)
+void Motor::driveBackwards()
 {
-    turn(degs);
-    /*digitalWrite(m_PWMLeft, 1);
-    digitalWrite(m_PWMRight, 1);*/
-    analogWrite(m_PWMLeft, 255);
-    analogWrite(m_PWMRight, 255);
-    m_powerTurning = true;
-    Serial.println("Power turning");
+    digitalWrite(m_leftForward, 0);
+    digitalWrite(m_leftBackwards, 1);
+    digitalWrite(m_rightForward, 0);
+    digitalWrite(m_rightBackwards, 1);
 }
 
 void Motor::driveLeft()

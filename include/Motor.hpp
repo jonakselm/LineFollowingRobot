@@ -18,6 +18,8 @@ public:
     void stop() const;
 
 private:
+    void driveForward();
+    void driveBackwards();
     void driveLeft();
     void driveRight();
     void turn(int16_t degs);
