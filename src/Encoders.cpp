@@ -5,7 +5,8 @@ RotaryEncoder *encA = nullptr, *encB = nullptr;
 Encoders::Encoders(int pinA1, int pinA2, int pinB1, int pinB2)
     : m_encoderA(pinA1, pinA2), m_encoderB(pinB1, pinB2),
       m_encoderDiff(0), m_relativeEncoderDiff(0),
-      m_lastA(0), m_lastB(0), m_relativeEncoderDistance(0)
+      m_lastA(0), m_lastB(0), m_relativeEncoderDistance(0),
+      m_elapsedTime(0)
 {
     encA = &m_encoderA;
     encB = &m_encoderB;
@@ -21,18 +22,31 @@ Encoders::~Encoders()
     encB = nullptr;
 }
 
-void Encoders::update()
+void Encoders::update(int64_t dt)
 {
+    m_elapsedTime += dt;
     int32_t posA = m_encoderA.getPosition();
     int32_t posB = m_encoderB.getPosition();
     int32_t newEncoderDiff = posA - posB;
     m_relativeEncoderDiff = newEncoderDiff - m_encoderDiff;
-    int diffA = posA - m_lastA;
-    int diffB = posB - m_lastB;
-    m_lastA = posA;
-    m_lastB = posB;
-    m_relativeEncoderDistance = abs(diffA) > abs(diffB) ? diffB : diffA;
-    //Serial.println(m_relativeEncoderDistance);
+    // On high speeds the lowest diff is always 0
+    // Maybe accumulate diff and update it
+    constexpr int delay = 100;
+    if (m_elapsedTime >= delay)
+    {
+        m_elapsedTime -= delay;
+        int diffA = posA - m_lastA;
+        int diffB = posB - m_lastB;
+        m_lastA = posA;
+        m_lastB = posB;
+        //m_relativeEncoderDistance = max(diffA, diffB);
+        m_relativeEncoderDistance = abs(diffA) > abs(diffB) ? diffB : diffA;
+        //Serial.println(m_relativeEncoderDistance);
+    }
+    else
+    {
+        m_relativeEncoderDistance = 0;
+    }
     if (m_encoderDiff != newEncoderDiff)
     {
         /*Serial.println(m_encoderDiff);

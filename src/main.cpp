@@ -40,19 +40,21 @@ uint64_t elapsedTime = 0, timeSincePoll = 0;
 void setup()
 {
     // Sensor setup
-    Serial.begin(115200);
+    Serial.begin(9600);
     //motor.autoCalibrate(sensor, 300);
 }
 
 void loop()
 {
-    encoders.update();
+    int64_t dt = millis() - elapsedTime;
+    elapsedTime = millis();
+    encoders.update(dt);
     /*if (encoders.getRelativeEncoderDiff())
     {
         Serial.println(encoders.getTotalEncoderDiff());
     }*/
     static int newPos = 0;
-    //newPos += encoders.getRelativeEncoderDistance();
+    newPos += encoders.getRelativeEncoderDistance();
     position.updatePosition(encoders.getRelativeEncoderDistance(), encoders.getTotalEncoderDiff());
     /*if (millis() - timeSincePoll > 1000)
     {
@@ -75,8 +77,6 @@ void loop()
     }
     uint16_t pos = sensor.readLine();
 
-    double dt = double(millis() - elapsedTime) / 1000;
-    elapsedTime = millis();
     static bool done = false;
     /*if (position.getPosition().x > 1000 && !done)
     {
@@ -86,8 +86,12 @@ void loop()
         done = true;
     }*/
     // Compute PID output
-    double pidOutput = pid.compute(pos, dt);
-    if (position.getPosition().x < 1 && position.getPosition().x > -1);
-        //motor.updateOutput((long)pidOutput, -2000, 2000);
+    double pidOutput = pid.compute(pos, double(dt / 1000));
+    if (lastPos.x < 1 && position.getPosition().x > -1)
+        motor.updateOutput((long)pidOutput, -2000, 2000);
+    else
+    {
+        motor.stop();
+    }
 }
 

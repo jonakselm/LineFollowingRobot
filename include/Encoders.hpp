@@ -10,7 +10,7 @@ public:
     Encoders(int pinA1, int pinA2, int pinB1, int pinB2);
     ~Encoders();
 
-    void update();
+    void update(int64_t dt);
 
     int32_t getTotalEncoderDiff() const;
 
@@ -24,9 +24,11 @@ public:
 private:
     static void tickA();
     static void tickB();
+
     RotaryEncoder m_encoderA, m_encoderB;
     int32_t m_encoderDiff, m_relativeEncoderDiff;
     int32_t m_lastA, m_lastB, m_relativeEncoderDistance;
+    int64_t m_elapsedTime;
 };
 
 #endif //LINEFOLLOWINGROBOT_ENCODERS_HPP

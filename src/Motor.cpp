@@ -22,7 +22,7 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
     driveLeft();
     for (int i = 0; i < cycles; i++)
     {
-        m_encoders.update();
+        m_encoders.update(0);
         if (m_encoders.getRelativeEncoderDiff())
             Serial.println(m_encoders.getTotalEncoderDiff());
         if (toTurn > 0 && m_encoders.getTotalEncoderDiff() >= toTurn)
@@ -42,7 +42,7 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
     }
     while (abs(m_encoders.getTotalEncoderDiff()) != 0)
     {
-        m_encoders.update();
+        m_encoders.update(0);
         Serial.println("Correction");
         if (m_encoders.getTotalEncoderDiff() > 0)
         {
