@@ -30,7 +30,7 @@ constexpr int MA1 = 3, MA2 = 4, MB1 = 6, MB2 = 7, PWMA = 2, PWMB = 5;
         MB1 = 6, MB2 = 7,
         PWMA = 2, PWMB = 5;*/
 
-Motor motor(MA1, MA2, MB1, MB2, PWMA, PWMB, encoders);
+Motor motor(MA1, MA2, MB1, MB2, PWMA, PWMB, encoders, position);
 
 Mapper mapper;
 Position position;

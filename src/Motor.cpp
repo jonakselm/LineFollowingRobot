@@ -2,14 +2,17 @@
 #include <Arduino.h>
 
 Motor::Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards,
-             int PWMLeft, int PWMRight, Encoders &encoders)
+             int PWMLeft, int PWMRight, Encoders &encoders, Position &position,
+             Mapper &mapper)
     : m_leftForward(leftForward),
       m_leftBackwards(leftBackwards),
       m_rightForward(rightForward),
       m_rightBackwards(rightBackwards),
       m_PWMLeft(PWMLeft),
       m_PWMRight(PWMRight),
-      m_encoders(encoders)
+      m_encoders(encoders),
+      m_position(position),
+      m_mapper(mapper)
 {
 }
 
@@ -182,4 +185,28 @@ void Motor::turn(int16_t degs)
 bool Motor::turnIsFinished() const
 {
     return abs(m_relativeEncoderDiff) >= abs(m_toTurn);
+}
+
+void Motor::driveAfterArray(const std::vector<Point> &map)
+{
+    std::array<Point, POINT_SAMPLE> points;
+    std::copy_n(map.begin() + m_pointIndex, POINT_SAMPLE, points.begin());
+    std::vector<Point> differing;
+    differing.push_back(points.front());
+    constexpr int threshold = 2;
+    for (int i = 1; i < points.size(); i++)
+    {
+        Point prevPoint = points[i-1];
+        Point point = points[i];
+        if (point.x > prevPoint.x + threshold &&
+            point.x < prevPoint.x - threshold)
+        {
+            differing.push_back(point);
+        }
+        else if (point.y > prevPoint.y + threshold &&
+                 point.y < prevPoint.y - threshold)
+        {
+            differing.push_back(point);
+        }
+    }
 }

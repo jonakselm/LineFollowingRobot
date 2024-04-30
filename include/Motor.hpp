@@ -2,12 +2,15 @@
 #define LINEFOLLOWINGROBOT_MOTOR_HPP
 #include "Sensor.hpp"
 #include "Encoders.hpp"
+#include "Position.hpp"
+#include "Mapper.hpp"
 
 class Motor
 {
 public:
     Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards,
-          int PWMLeft, int PWMRight, Encoders &encoders);
+          int PWMLeft, int PWMRight, Encoders &encoders, Position &position,
+          Mapper &mapper);
 
     void autoCalibrate(Sensor &sensor, int cycles);
     void updateOutput(long pidOutput, long pidMin, long pidMax);
@@ -16,6 +19,8 @@ public:
     void manualRun(unsigned char speed);
 
     void stop() const;
+
+    void driveAfterArray(const std::vector<Point> &map);
 
 private:
     void driveForward();
@@ -32,6 +37,10 @@ private:
     bool m_powerTurning = false;
     int16_t m_toTurn = 0;
     int16_t m_relativeEncoderDiff = 0;
+    Position &m_position;
+    Mapper &m_mapper;
+    int m_pointIndex = 0;
+    static constexpr int POINT_SAMPLE = 30;
 };
 
 #endif //LINEFOLLOWINGROBOT_MOTOR_HPP
