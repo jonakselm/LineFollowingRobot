@@ -17,6 +17,7 @@ public:
     //void driveForward();
     void stop() const;
     void setSpeedScaler(double speedScaler);
+    bool isTurning() const;
 
 private:
     void driveForward();

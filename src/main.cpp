@@ -3,8 +3,7 @@
 #include "Sensor.hpp"
 #include "Motor.hpp"
 #include "Encoders.hpp"
-
-
+#include <algorithm>
 
 #define nitti
 
@@ -42,7 +41,11 @@ void setup()
     // Sensor setup
     Serial.begin(9600);
     motor.autoCalibrate(sensor, 300);
-
+    motor.stop();
+    digitalWrite(MA1, 0);
+    digitalWrite(MA2, 0);
+    digitalWrite(MB1, 0);
+    digitalWrite(MB2, 0);
 }
 
 void loop()
@@ -68,102 +71,93 @@ void loop()
     auto sensorValues = sensor.getSensorValues();
     constexpr int numSensors = numSensorPins;
     constexpr int midIndex = numSensors / 2;
-    constexpr int threshold = 1750;  // Justert terskel for bedre følsomhet
+    constexpr int threshold = 600;  // Justert terskel for bedre følsomhet
     int countRight = 0;
     int countLeft = 0;
-    static bool blackDetected[numSensors] = {false};
+    static std::array<bool, numSensorPins> blackDetected = { true };
+    static std::array<bool, numSensorPins> prevBlack = { true };
 
     // Analyser sensorverdier og oppdater svart-detekterte sensorer
     for (int i = 0; i < numSensors; i++) {
-        if (sensorValues[i] > threshold) {
-            blackDetected[i] = true;
+        blackDetected[i] = sensorValues[i] > threshold;
+        Serial.print(blackDetected[i]);
+        Serial.print(", ");
+        /*if (blackDetected[i]) {
             if (i < midIndex) {
                 countRight++;
             } else if (i > midIndex) {
                 countLeft++;
             }
-        }
+        }*/
     }
+    Serial.println();
 
-    constexpr int minSensorsForTurn = 4;
-    static bool turnLeft = false;
-    static bool shouldCheck = false;
-    static bool shouldTurn = false;
-    static uint64_t lastTurnTime = 0;
-    constexpr int turnDelay = 50; // ms
-
-    // Bestem retning basert på sensorlesninger
-    if (countRight >= minSensorsForTurn && countLeft < minSensorsForTurn) {
-        shouldCheck = true;
-        shouldTurn = true;
-        turnLeft = false;
-        lastTurnTime = millis();
-    } else if (countLeft >= minSensorsForTurn && countRight < minSensorsForTurn) {
-        turnLeft = true;
-        shouldCheck = true;
-        shouldTurn = true;
-        lastTurnTime = millis();
-    }
-
-    // Utfører sving logikk
-    if (shouldCheck) {
-        if ((turnLeft && blackDetected[numSensors - 1]) || (!turnLeft && blackDetected[0])) {
-            shouldTurn = false;
-            shouldCheck = false;
-            for (int i = 0; i < numSensors; i++) {
-                blackDetected[i] = false;
-            }
-        }
-    }
-
-    // Utfør sving hvis tidspunktet er riktig
-    if (shouldTurn && millis() - turnDelay > lastTurnTime) {
-        shouldCheck = false;
-        shouldTurn = false;
-        for (int i = 0; i < numSensors; i++) {
-            blackDetected[i] = false;
-        }
-        int turnAngle = turnLeft ? 90 : -90;
-        motor.powerTurn(turnAngle);
-    }
-#endif
-
-    uint8_t switchValue = digitalRead(switch1Pin);
-    switchValue |= digitalRead(switch2Pin) << 1;
-    switchValue |= digitalRead(switch3Pin) << 2;
-
-    switch (switchValue)
+    bool anyBlack = std::any_of(blackDetected.begin(), blackDetected.end(), [](bool b)
     {
-        case 0:
-            motor.setSpeedScaler(0.5);
-            break;
-        case 1:
-            motor.setSpeedScaler(0.55);
-            break;
-        case 2:
-            motor.setSpeedScaler(0.60);
-            break;
-        case 3:
-            motor.setSpeedScaler(0.65);
-            break;
-        case 4:
-            motor.setSpeedScaler(0.70);
-            break;
-        case 5:
-            motor.setSpeedScaler(0.75);
-            break;
-        case 6:
-            motor.setSpeedScaler(0.80);
-            break;
-        case 7:
-            motor.setSpeedScaler(0.85);
-            break;
-        default:
-            motor.setSpeedScaler(0.9);
-            break;
+        return b;
+    });
+    if (anyBlack)
+    {
+        std::copy(blackDetected.begin(), blackDetected.end(), prevBlack.begin());
+
+        uint8_t switchValue = digitalRead(switch1Pin);
+        switchValue |= digitalRead(switch2Pin) << 1;
+        switchValue |= digitalRead(switch3Pin) << 2;
+
+        switch (switchValue)
+        {
+            case 0:
+                motor.setSpeedScaler(0.5);
+                break;
+            case 1:
+                motor.setSpeedScaler(0.55);
+                break;
+            case 2:
+                motor.setSpeedScaler(0.60);
+                break;
+            case 3:
+                motor.setSpeedScaler(0.65);
+                break;
+            case 4:
+                motor.setSpeedScaler(0.70);
+                break;
+            case 5:
+                motor.setSpeedScaler(0.75);
+                break;
+            case 6:
+                motor.setSpeedScaler(0.80);
+                break;
+            case 7:
+                motor.setSpeedScaler(0.85);
+                break;
+            default:
+                motor.setSpeedScaler(0.9);
+                break;
+        }
+        motor.updateOutput((long)pidOutput, -2000, 2000);
+    }
+    else
+    {
+        bool turnRight = std::any_of(prevBlack.begin(), prevBlack.begin() + 1, [](bool b)
+        {
+            Serial.print(b);
+            Serial.print(", ");
+            return b;
+        });
+        Serial.println();
+        if (prevBlack[0])
+        {
+            motor.powerTurn(-45);
+            Serial.println("Right");
+        }
+        else
+        {
+            Serial.println("Left");
+            motor.powerTurn(45);
+        }
     }
 
-    motor.updateOutput((long)pidOutput, -2000, 2000);
+#endif
 }
 
 

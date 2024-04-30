@@ -18,7 +18,6 @@ void Motor::powerTurn(int16_t degs)
     // Set PWM to a lower value for smoother turns
 
     // Indicate that the robot is power turning
-    m_powerTurning = true;
 
     // Set the angle to turn
     m_toTurn = degs;
@@ -88,59 +87,32 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
 
 void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
 {
-    if (m_powerTurning)
-    {
-        m_relativeEncoderDiff += m_encoders.getRelativeEncoderDiff();
-        if (m_encoders.getRelativeEncoderDiff())
-        {
-           // Serial.println(m_encoders.getTotalEncoderDiff());
-        }
-        if (m_relativeEncoderDiff > m_toTurn / 2)
-        {
-            digitalWrite(m_PWMLeft, MAX_SPEED / 2);
-            digitalWrite(m_PWMRight, MAX_SPEED / 2);
-        }
-        if (m_relativeEncoderDiff > m_toTurn / 4)
-        {
-            digitalWrite(m_PWMLeft, MAX_SPEED / 4);
-            digitalWrite(m_PWMRight, MAX_SPEED / 4);
-        }
-        if (turnIsFinished())
-        {
-           // Serial.println("Done power turning");
-            m_powerTurning = false;
-            m_relativeEncoderDiff = 0;
-        }
-    }
-    else
-    {
-        /*digitalWrite(m_leftForward, 0);
-        digitalWrite(m_leftBackwards, 0);
-        digitalWrite(m_rightForward, 0);
-        digitalWrite(m_rightBackwards, 0);
-        digitalWrite(m_PWMLeft, 0);
-        digitalWrite(m_PWMRight, 0);*/
-        pidOutput = min(pidOutput, pidMax);
-        pidOutput = max(pidOutput, pidMin);
-        driveForward();
+    /*digitalWrite(m_leftForward, 0);
+    digitalWrite(m_leftBackwards, 0);
+    digitalWrite(m_rightForward, 0);
+    digitalWrite(m_rightBackwards, 0);
+    digitalWrite(m_PWMLeft, 0);
+    digitalWrite(m_PWMRight, 0);*/
+    pidOutput = min(pidOutput, pidMax);
+    pidOutput = max(pidOutput, pidMin);
+    driveForward();
 
-        /*
-         * Left is negative, Right is positive
-         * 0 == 255
-         * Pid negative == Left < Right
-         * Pid positive == Right < Left
-         * */
-        int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
-        int speedLeft = MAX_SPEED;
-        int speedRight = MAX_SPEED;
-        int absOutput = abs(outputMapped);
-        if (outputMapped > 0)
-            speedLeft -= absOutput;
-        else
-            speedRight -= absOutput;
-        analogWrite(m_PWMLeft, speedLeft);
-        analogWrite(m_PWMRight, speedRight);
-    }
+    /*
+     * Left is negative, Right is positive
+     * 0 == 255
+     * Pid negative == Left < Right
+     * Pid positive == Right < Left
+     * */
+    int outputMapped = (int)map(pidOutput, pidMin, pidMax, -MAX_SPEED, MAX_SPEED - 1);
+    int speedLeft = MAX_SPEED;
+    int speedRight = MAX_SPEED;
+    int absOutput = abs(outputMapped);
+    if (outputMapped > 0)
+        speedLeft -= absOutput;
+    else
+        speedRight -= absOutput;
+    analogWrite(m_PWMLeft, speedLeft);
+    analogWrite(m_PWMRight, speedRight);
 }
 
 void Motor::manualRun(unsigned char speed)
@@ -208,7 +180,13 @@ bool Motor::turnIsFinished() const
     return abs(m_relativeEncoderDiff) >= abs(m_toTurn);
 }
 
-void Motor::setSpeedScaler(double speedScaler) {
+void Motor::setSpeedScaler(double speedScaler)
+{
     MAX_SPEED = 255 *   speedScaler;
+}
+
+bool Motor::isTurning() const
+{
+    return m_powerTurning;
 }
 
