@@ -13,28 +13,57 @@ Motor::Motor(int leftForward, int leftBackwards, int rightForward, int rightBack
 {
 }
 
+void Motor::powerTurn(int16_t degs)
+{
+    // Set PWM to a lower value for smoother turns
+
+    // Indicate that the robot is power turning
+    m_powerTurning = true;
+
+    // Set the angle to turn
+    m_toTurn = degs;
+
+    // Determine the direction of the turn
+    if (degs > 0)
+    {
+        // Turn left
+        driveLeft();
+    }
+    else if (degs < 0)
+    {
+        // Turn right
+        driveRight();
+    }
+
+
+    // Resume normal speed after turning
+    analogWrite(m_PWMLeft, MAX_SPEED);
+    analogWrite(m_PWMRight, MAX_SPEED);
+}
+
+
 void Motor::autoCalibrate(Sensor &sensor, int cycles)
 {
     analogWrite(m_PWMLeft, 50);
     analogWrite(m_PWMRight, 50);
     int16_t toTurn = 20;
-    Serial.println("left");
+    //Serial.println("left");
     driveLeft();
     for (int i = 0; i < cycles; i++)
     {
         m_encoders.update();
         if (m_encoders.getRelativeEncoderDiff())
-            Serial.println(m_encoders.getTotalEncoderDiff());
+            //Serial.println(m_encoders.getTotalEncoderDiff());
         if (toTurn > 0 && m_encoders.getTotalEncoderDiff() >= toTurn)
         {
             toTurn = -toTurn;
-            Serial.println("right");
+           // Serial.println("right");
             driveRight();
         }
         else if (toTurn < 0 && m_encoders.getTotalEncoderDiff() <= toTurn)
         {
             toTurn = -toTurn;
-            Serial.println("left");
+           // Serial.println("left");
             driveLeft();
         }
         sensor.calibrate(1);
@@ -43,7 +72,7 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
     while (abs(m_encoders.getTotalEncoderDiff()) != 0)
     {
         m_encoders.update();
-        Serial.println("Correction");
+        //Serial.println("Correction");
         if (m_encoders.getTotalEncoderDiff() > 0)
         {
             driveRight();
@@ -54,7 +83,7 @@ void Motor::autoCalibrate(Sensor &sensor, int cycles)
         }
         sensor.calibrate(1);
     }
-    Serial.println("Calibration done");
+    //Serial.println("Calibration done");
 }
 
 void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
@@ -64,7 +93,7 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         m_relativeEncoderDiff += m_encoders.getRelativeEncoderDiff();
         if (m_encoders.getRelativeEncoderDiff())
         {
-            Serial.println(m_encoders.getTotalEncoderDiff());
+           // Serial.println(m_encoders.getTotalEncoderDiff());
         }
         if (m_relativeEncoderDiff > m_toTurn / 2)
         {
@@ -78,7 +107,7 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         }
         if (turnIsFinished())
         {
-            Serial.println("Done power turning");
+           // Serial.println("Done power turning");
             m_powerTurning = false;
             m_relativeEncoderDiff = 0;
         }
@@ -112,20 +141,6 @@ void Motor::updateOutput(long pidOutput, long pidMin, long pidMax)
         analogWrite(m_PWMLeft, speedLeft);
         analogWrite(m_PWMRight, speedRight);
     }
-}
-
-void Motor::powerTurn(int16_t degs)
-{
-    analogWrite(m_PWMLeft, 50);
-    analogWrite(m_PWMLeft, 50);
-    driveBackwards();
-    delay(200);
-    Serial.println("Power turning");
-    m_powerTurning = true;
-    m_toTurn = ~0;
-    turn(degs);
-    analogWrite(m_PWMLeft, MAX_SPEED);
-    analogWrite(m_PWMRight, MAX_SPEED);
 }
 
 void Motor::manualRun(unsigned char speed)
@@ -192,3 +207,8 @@ bool Motor::turnIsFinished() const
 {
     return abs(m_relativeEncoderDiff) >= abs(m_toTurn);
 }
+
+void Motor::setSpeedScaler(double speedScaler) {
+    MAX_SPEED = 255 *   speedScaler;
+}
+

@@ -14,8 +14,9 @@ public:
     void powerTurn(int16_t degs);
 
     void manualRun(unsigned char speed);
-
+    //void driveForward();
     void stop() const;
+    void setSpeedScaler(double speedScaler);
 
 private:
     void driveForward();
@@ -27,11 +28,14 @@ private:
 
     int m_leftForward, m_leftBackwards, m_rightForward, m_rightBackwards,
         m_PWMLeft, m_PWMRight;
-    static constexpr int MAX_SPEED = 255 * 0.60;
+    int MAX_SPEED = 255;
+            ;
     Encoders &m_encoders;
     bool m_powerTurning = false;
     int16_t m_toTurn = 0;
     int16_t m_relativeEncoderDiff = 0;
 };
+
+
 
 #endif //LINEFOLLOWINGROBOT_MOTOR_HPP

@@ -27,8 +27,10 @@ void Encoders::update()
     if (m_encoderDiff != newEncoderDiff)
     {
         m_encoderDiff = newEncoderDiff;
+        Serial.println(newEncoderDiff);
     }
 }
+
 
 int16_t Encoders::getTotalEncoderDiff() const
 {
