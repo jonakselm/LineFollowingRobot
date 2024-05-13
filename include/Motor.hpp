@@ -6,26 +6,23 @@
 class Motor
 {
 public:
+    enum class TurnDirection { Left, Right };
+
     Motor(int leftForward, int leftBackwards, int rightForward, int rightBackwards,
           int PWMLeft, int PWMRight, Encoders &encoders);
 
     void autoCalibrate(Sensor &sensor, int cycles);
     void updateOutput(long pidOutput, long pidMin, long pidMax);
-    void powerTurn(int16_t degs);
+    void powerTurn(TurnDirection direction);
 
-    void manualRun(unsigned char speed);
-    //void driveForward();
     void stop() const;
     void setSpeedScaler(double speedScaler);
-    bool isTurning() const;
 
 private:
-    void driveForward();
-    void driveBackwards();
-    void driveLeft();
-    void driveRight();
-    void turn(int16_t degs);
-    bool turnIsFinished() const;
+    void driveForward() const;
+    void driveBackwards() const;
+    void driveLeft() const;
+    void driveRight() const;
 
     int m_leftForward, m_leftBackwards, m_rightForward, m_rightBackwards,
         m_PWMLeft, m_PWMRight;
@@ -33,7 +30,6 @@ private:
             ;
     Encoders &m_encoders;
     bool m_powerTurning = false;
-    int16_t m_toTurn = 0;
     int16_t m_relativeEncoderDiff = 0;
 };
 

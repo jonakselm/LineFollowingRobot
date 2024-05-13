@@ -22,22 +22,21 @@ Encoders::~Encoders()
 
 void Encoders::update()
 {
-    int16_t newEncoderDiff = m_encoderA.getPosition() - m_encoderB.getPosition();
+    int64_t newEncoderDiff = m_encoderA.getPosition() - m_encoderB.getPosition();
     m_relativeEncoderDiff = newEncoderDiff - m_encoderDiff;
     if (m_encoderDiff != newEncoderDiff)
     {
         m_encoderDiff = newEncoderDiff;
-        Serial.println(newEncoderDiff);
     }
 }
 
 
-int16_t Encoders::getTotalEncoderDiff() const
+int64_t Encoders::getTotalEncoderDiff() const
 {
     return m_encoderDiff;
 }
 
-int16_t Encoders::getRelativeEncoderDiff() const
+int64_t Encoders::getRelativeEncoderDiff() const
 {
     return m_relativeEncoderDiff;
 }

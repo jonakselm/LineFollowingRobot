@@ -4,7 +4,8 @@
 
 #include "Pid.hpp"
 
-PIDController::PIDController(double kp, double ki, double kd, double setpoint) {
+PIDController::PIDController(double kp, double ki, double kd, double setpoint)
+{
     this->kp = kp;
     this->ki = ki;
     this->kd = kd;
@@ -16,7 +17,8 @@ PIDController::PIDController(double kp, double ki, double kd, double setpoint) {
 
 }
 
-double PIDController::compute(double current, double dt) {
+double PIDController::compute(double current, double dt)
+{
     error = setpoint - current;
 
     integral += (error + prevError) * dt / 2.0;
@@ -29,7 +31,8 @@ double PIDController::compute(double current, double dt) {
     return Pid_Output;
 }
 
-void PIDController::setSetpoint(double setpoint) {
+void PIDController::setSetpoint(double setpoint)
+{
     this->setpoint = setpoint;
 };
 

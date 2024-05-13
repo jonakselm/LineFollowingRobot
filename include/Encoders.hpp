@@ -11,15 +11,16 @@ public:
 
     void update();
 
-    int16_t getTotalEncoderDiff() const;
+    int64_t getTotalEncoderDiff() const;
 
-    int16_t getRelativeEncoderDiff() const;
+    int64_t getRelativeEncoderDiff() const;
 
 private:
     static void tickA();
     static void tickB();
+
     RotaryEncoder m_encoderA, m_encoderB;
-    int16_t m_encoderDiff, m_relativeEncoderDiff;
+    int64_t m_encoderDiff, m_relativeEncoderDiff;
 };
 
 #endif //LINEFOLLOWINGROBOT_ENCODERS_HPP
