@@ -43,11 +43,11 @@ void loop()
     encoders.update();
     uint16_t pos = sensor.readLine();
 
-    double dt = double(millis() - elapsedTime) / 1000;
+    const double dt = double(millis() - elapsedTime) / 1000;
     elapsedTime = millis();
 
     // Compute PID output
-    double pidOutput = pid.compute(pos, dt);
+    const double pidOutput = pid.compute(pos, dt);
 
     auto sensorValues = sensor.getSensorValues();
     constexpr int numSensors = numSensorPins;
