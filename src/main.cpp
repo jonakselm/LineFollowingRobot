@@ -17,10 +17,10 @@ Sensor sensor(sensorPins, numSensorPins);
 Encoders encoders(8, 9, 11, 10);
 
 // Pid setup
-double kp = 1.75;
-double ki = 0.15;
-double kd = 0.2;
-double setpoint = 4000;
+constexpr double kp = 1.75;
+constexpr double ki = 0.15;
+constexpr double kd = 0.2;
+constexpr double setpoint = 4000;
 PIDController pid(kp, ki, kd,  setpoint);
 
 uint64_t elapsedTime = 0;
