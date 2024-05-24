@@ -16,6 +16,10 @@ Encoders::Encoders(int pinA1, int pinA2, int pinB1, int pinB2)
 
 Encoders::~Encoders()
 {
+    detachInterrupt(pinA1);
+    detachInterrupt(pinA2);
+    detachInterrupt(pinB1);
+    detachInterrupt(pinB2);
     encA = nullptr;
     encB = nullptr;
 }
