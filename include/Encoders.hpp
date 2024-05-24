@@ -21,6 +21,7 @@ private:
 
     RotaryEncoder m_encoderA, m_encoderB;
     int64_t m_encoderDiff, m_relativeEncoderDiff;
+    const int m_pinA1, m_pinA2, m_pinB1, m_pinB2;
 };
 
 #endif //LINEFOLLOWINGROBOT_ENCODERS_HPP

@@ -4,7 +4,8 @@ RotaryEncoder *encA = nullptr, *encB = nullptr;
 
 Encoders::Encoders(int pinA1, int pinA2, int pinB1, int pinB2)
     : m_encoderA(pinA1, pinA2), m_encoderB(pinB1, pinB2),
-      m_encoderDiff(0), m_relativeEncoderDiff(0)
+      m_encoderDiff(0), m_relativeEncoderDiff(0),
+      m_pinA1(pinA1), m_pinA2(pinA2), m_pinB1(pinB1), m_pinB2(pinB2)
 {
     encA = &m_encoderA;
     encB = &m_encoderB;
@@ -16,10 +17,10 @@ Encoders::Encoders(int pinA1, int pinA2, int pinB1, int pinB2)
 
 Encoders::~Encoders()
 {
-    detachInterrupt(pinA1);
-    detachInterrupt(pinA2);
-    detachInterrupt(pinB1);
-    detachInterrupt(pinB2);
+    detachInterrupt(m_pinA1);
+    detachInterrupt(m_pinA2);
+    detachInterrupt(m_pinB1);
+    detachInterrupt(m_pinB2);
     encA = nullptr;
     encB = nullptr;
 }
